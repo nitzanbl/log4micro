@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'sinatra'
 require 'pg'
+require './query.rb'
 require 'json'
 
 set :bind, '0.0.0.0'
@@ -28,7 +29,23 @@ end
 
 put '/projects/:id' do
   content_type :json
-  JSON.generate(params)
+  query = Query.new(:projects, :update)
+  if params.has_key? "name"
+    query.add_update_param( :name, params['name'] )
+  end
+  if params.has_key? "description"
+    query.add_update_param( :description, params['description'] )
+  end
+  if params.has_key? "level_control"
+    query.add_update_param( :level_control, params['level_control'] )
+  end
+  if params.has_key? "status"
+    query.add_update_param( :status, params['status'] )
+  end
+  query.add_where_param(:id, params["id"].to_i)
+  qstr = query.query_string
+  settings.db.exec_params(qstr, query.val)
+  JSON.generate({msg: "your project was updated successfully"})
 end
 
 get '/projects/:id/logs' do
