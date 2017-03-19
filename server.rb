@@ -26,6 +26,11 @@ get '/projects' do
   JSON.generate(projects)
 end
 
+put '/projects/:id' do
+  content_type :json
+  JSON.generate(params)
+end
+
 get '/projects/:id/logs' do
   halt 400, "invalid project id" if (params['id']=~ /\A\d+\z/).nil?
   content_type :json
