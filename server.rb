@@ -25,3 +25,15 @@ get '/projects' do
   end
   JSON.generate(projects)
 end
+
+get '/projects/:id/logs' do
+  halt 400, "invalid project id" if (params['id']=~ /\A\d+\z/).nil?
+  content_type :json
+  logs = []
+  settings.db.exec_params('select * from logs where project_id=$1::int;', [params['id'].to_i]) do |res|
+    res.each do |row|
+      logs << row
+    end
+  end
+  JSON.generate(logs)
+end
