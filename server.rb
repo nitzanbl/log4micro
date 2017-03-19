@@ -1,6 +1,10 @@
+#!/usr/bin/env ruby
 require 'sinatra'
 require 'pg'
 require 'json'
+
+set :bind, '0.0.0.0'
+set :port, 80
 
 set :db, PG.connect(host: 'localhost', user: 'postgres', dbname: 'log4micro', password: 'log4micro')
 configure do
