@@ -77,7 +77,7 @@ put '/projects/:id' do
   JSON.generate({msg: "your project was updated successfully"})
 end
 
-delete 'projects/:id' do
+delete '/projects/:id' do
   content_type :json
   res = settings.db.exec_params('delete from projects where id=$1::int;', [params['id'].to_i])
   if res.cmd_tuples > 0
@@ -90,7 +90,7 @@ end
 
 #TRIGGERS
 
-post 'projects/:id/triggers' do
+post '/projects/:id/triggers' do
   content_type :json
   res = settings.db.exec_params('insert into triggers (project_id, trigger_data_id, trigger_condition, trigger_value) values ($1::int, $2::int, $3::text, $4) returning *;',
     [params['project_id'].to_i,
