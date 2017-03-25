@@ -1,0 +1,18 @@
+{
+  "name": "log4micro",
+  "version": "1.0.0",
+  "description": "log4micro",
+  "main": "socket.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "ubuntu@ec2-35-157-234-188.eu-central-1.compute.amazonaws.com:log4micro.git"
+  },
+  "author": "nitzan",
+  "license": "ISC",
+  "dependencies": {
+    "pg": "6.1.5"
+  }
+}

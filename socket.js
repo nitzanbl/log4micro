@@ -1,4 +1,7 @@
 var net = require('net');
+var pg = require('pg');
+
+var client = new pg.Client({host: 'localhost', user: 'postgres', database: 'log4micro', password: 'log4micro'});
 
 var checkPayload = function checkPayload(buff) {
   //buff has Type Project_id and Log_level_length
@@ -110,8 +113,8 @@ var parseMonitoringMessage = function parseMonitoringMessage(buff) {
   msg.project_id = getInt(data);
   msg.log_level = getString(data);
   msg.log_message = getString(data);
-  msg.timestamp = getInt(data);
-  msg.line_number = getInt(data);
+  msg.time = getInt(data);
+  msg.line = getInt(data);
   msg.file_name = getString(data);
   msg.function_name = getString(data);
   msg.tags = [];
@@ -134,28 +137,70 @@ var parseMonitoringMessage = function parseMonitoringMessage(buff) {
   return msg;
 }
 
-var server = net.createServer(function(socket) {
-  var buffer = new Buffer([]);
-  socket.on('close', function(had_error){
 
-  });
-
-  socket.on('connect', function(){
-
-  });
-
-  socket.on('data', function(data){
-    buffer = Buffer.concat([buffer, data]);
-    var length = checkPayload(buffer);
-    if (length) {
-      var message = buffer.slice(0, length);
-      buffer = buffer.slice(length, buffer.length);
-      message = parseMonitoringMessage(message);
-      console.log(message);
-    }
-  });
-
-
+client.connect(function(err) {
+  if(err) {
+    throw err;
+  }
+  startServer(client);
 });
 
-server.listen(8090, '0.0.0.0');
+
+var startServer = function startServer(client) {
+  var server = net.createServer(function(socket) {
+    var buffer = new Buffer([]);
+    socket.on('close', function(had_error){
+
+    });
+
+    socket.on('connect', function(){
+
+    });
+
+    socket.on('data', function(data){
+      buffer = Buffer.concat([buffer, data]);
+      var length = checkPayload(buffer);
+      if (length) {
+        var message = buffer.slice(0, length);
+        buffer = buffer.slice(length, buffer.length);
+        message = parseMonitoringMessage(message);
+        client.query('insert into logs (project_id, log_level, log_message, tags, time, function_name, file_name, line)\
+        values ($1, $2, $3, $4, $5, $6, $7, $8) returning *;',
+        [message.project_id, message.log_level, message.log_message, message.tags, message.time, message.function_name, message.file_name, message.line], function(err, res) {
+          if(err) {
+            console.log(err);
+            return;
+          }else {
+            console.log('log was inserted');
+            if(message.data.length > 0){
+              var log_id = res.rows[0].id;
+              var query = 'insert into data (project_id, log_id, name, value, type) values ';
+              var pre = '';
+              var vals= [message.project_id, log_id];
+              for(var i=0; i<message.data.length; i+=1){
+                query += pre+ '($1, $2, $'+(vals.length+1)+', $'+(vals.length+2)+', $'+(vals.length+3)+')';
+                pre = ', ';
+                vals.push(message.data[i].name);
+                vals.push(new Buffer(message.data[i].value, 'hex'));
+                vals.push(message.data[i].type);
+              }
+              query +=  ';';
+              client.query(query, vals, function(err, res){
+                if(err){
+                  console.log(err);
+                }else {
+                  console.log('data was inserted');
+                }
+              });
+            }
+          }
+        });
+        console.log(message);
+      }
+    });
+
+
+  });
+
+  server.listen(8090, '0.0.0.0');
+}
