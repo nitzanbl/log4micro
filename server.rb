@@ -116,6 +116,64 @@ get '/projects/:project_id/triggers' do
   JSON.generate(triggers)
 end
 
+get '/projects/:project_id/triggers/:id' do
+  content_type :json
+  trigger = nil
+  settings.db.exec_params('select * from triggers where project_id=$1::int and id=$2::int limit 1;', [params['project_id'].to_i ,params['id'].to_i]) do |res|
+    if res.num_tuples > 0
+      trigger = res[0]
+    end
+  end
+  if trigger.nil?
+    status 400
+    JSON.generate({status: 'Invalid trigger id or project id'})
+  else
+    JSON.generate(trigger)
+  end
+end
+
+delete '/projects/:project_id/triggers/:id' do
+  content_type :json
+  res = settings.db.exec_params('delete from triggers where project_id=$1::int and id=$2::int limit 1;', [params['project_id'].to_i ,params['id'].to_i])
+  if res.cmd_tuples > 0
+    JSON.generate(status: "trigger was deleted successfully")
+  else
+    status 400
+    JSON.generate(status: "Invalid project id or trigger id")
+  end
+end
+
+#DATA
+
+get '/projects/:project_id/data' do
+  content_type :json
+  data = []
+  settings.db.exec('select data.* from data inner join
+  (select name, max(id) as max_id from data where project_id=$1::int group by name) as name_max on data.id = name_max.max_id where project_id = $1::int;',
+  [params['project_id'].to_i]) do |res|
+    res.each do |row|
+      data << row
+    end
+  end
+  JSON.generate(data)
+end
+
+get '/projects/:project_id/data/:id' do
+  content_type :json
+  data = nil
+  settings.db.exec_params('select * from data where project_id=$1::int and id=$2::int limit 1;', [params['project_id'].to_i ,params['id'].to_i]) do |res|
+    if res.num_tuples > 0
+      data = res[0]
+    end
+  end
+  if data.nil?
+    status 400
+    JSON.generate({status: 'Invalid data id or project id'})
+  else
+    JSON.generate(data)
+  end
+end
+
 #LOGS
 
 get '/projects/:id/logs' do
