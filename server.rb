@@ -90,7 +90,7 @@ end
 
 #TRIGGERS
 
-post '/projects/:id/triggers' do
+post '/projects/:project_id/triggers' do
   content_type :json
   res = settings.db.exec_params('insert into triggers (project_id, trigger_data_id, trigger_condition, trigger_value) values ($1::int, $2::int, $3::text, $4) returning *;',
     [params['project_id'].to_i,
@@ -105,7 +105,7 @@ post '/projects/:id/triggers' do
   end
 end
 
-get '/projects/:id/triggers' do
+get '/projects/:project_id/triggers' do
   content_type :json
   triggers = []
   settings.db.exec('select * from triggers where project_id = $1::int;', [params['project_id'].to_i]) do |res|
