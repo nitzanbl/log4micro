@@ -16,6 +16,19 @@ get '/home' do
   'hello'
 end
 
+#PROJECTS
+
+post '/projects' do
+  content_type :json
+  res = settings.db.exec_params('insert into projects (name, description, level_control, status) values ($1::text, $2::text, \'all\', \'started\');', [params['name'].to_s, params['description'].to_s])
+  if res.cmd_tuples > 0
+    JSON.generate(res[0])
+  else
+    status 400
+    JSON.generate(status: "Error creating project, Invalid parameters")
+  end
+end
+
 get '/projects' do
   content_type :json
   projects = []
@@ -63,6 +76,47 @@ put '/projects/:id' do
   settings.db.exec_params(qstr, query.val)
   JSON.generate({msg: "your project was updated successfully"})
 end
+
+delete 'projects/:id' do
+  content_type :json
+  res = settings.db.exec_params('delete from projects where id=$1::int;', [params['id'].to_i])
+  if res.cmd_tuples > 0
+    JSON.generate(status: "project was deleted successfully")
+  else
+    status 400
+    JSON.generate(status: "Invalid project id")
+  end
+end
+
+#TRIGGERS
+
+post 'projects/:id/triggers' do
+  content_type :json
+  res = settings.db.exec_params('insert into triggers (project_id, trigger_data_id, trigger_condition, trigger_value) values ($1::int, $2::int, $3::text, $4);',
+    [params['project_id'].to_i,
+    params['trigger_data_id'].to_i,
+    params['trigger_condition'].to_s,
+    {value: [params['trigger_value']].pack('H*'), format: BINARY}])
+  if res.cmd_tuples > 0
+    JSON.generate(res[0])
+  else
+    status 400
+    JSON.generate(status: "Error creating trigger, Invalid parameters")
+  end
+end
+
+get '/projects/:id/triggers' do
+  content_type :json
+  triggers = []
+  settings.db.exec('select * from triggers where project_id = $1::int;', [params['project_id'].to_i]) do |res|
+    res.each do |row|
+      triggers << row
+    end
+  end
+  JSON.generate(triggers)
+end
+
+#LOGS
 
 get '/projects/:id/logs' do
   halt 400, "invalid project id" if (params['id']=~ /\A\d+\z/).nil?
