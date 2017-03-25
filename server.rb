@@ -31,8 +31,8 @@ get '/projects/:id' do
   content_type :json
   project = nil
   settings.db.exec_params('select * from projects where id=$1::int limit 1;', [params['id'].to_i]) do |res|
-    if res.length > 0
-      project = res.first
+    if res.num_tuples > 0
+      project = res[0]
     end
   end
   if project.nil?
