@@ -92,11 +92,11 @@ end
 
 post '/projects/:project_id/triggers' do
   content_type :json
-  res = settings.db.exec_params('insert into triggers (project_id, trigger_data_id, trigger_condition, trigger_value) values ($1::int, $2::int, $3::text, $4::binary) returning *;',
+  res = settings.db.exec_params('insert into triggers (project_id, trigger_data_id, trigger_condition, trigger_value) values ($1::int, $2::int, $3::text, $4) returning *;',
     [params['project_id'].to_i,
     params['trigger_data_id'].to_i,
     params['trigger_condition'].to_s,
-    [params['trigger_value']].pack('H*')])
+    {value: [params['trigger_value']].pack('H*'), format: 1}])
   if res.cmd_tuples > 0
     JSON.generate(res[0])
   else
