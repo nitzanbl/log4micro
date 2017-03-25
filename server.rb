@@ -20,7 +20,7 @@ end
 
 post '/projects' do
   content_type :json
-  res = settings.db.exec_params('insert into projects (name, description, level_control, status) values ($1::text, $2::text, \'all\', \'started\');', [params['name'].to_s, params['description'].to_s])
+  res = settings.db.exec_params('insert into projects (name, description, level_control, status) values ($1::text, $2::text, \'all\', \'started\') returning *;', [params['name'].to_s, params['description'].to_s])
   if res.cmd_tuples > 0
     JSON.generate(res[0])
   else
@@ -92,7 +92,7 @@ end
 
 post 'projects/:id/triggers' do
   content_type :json
-  res = settings.db.exec_params('insert into triggers (project_id, trigger_data_id, trigger_condition, trigger_value) values ($1::int, $2::int, $3::text, $4);',
+  res = settings.db.exec_params('insert into triggers (project_id, trigger_data_id, trigger_condition, trigger_value) values ($1::int, $2::int, $3::text, $4) returning *;',
     [params['project_id'].to_i,
     params['trigger_data_id'].to_i,
     params['trigger_condition'].to_s,
