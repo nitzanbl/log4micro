@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'sinatra'
+require 'sinatra/cross_origin'
 require 'pg'
 require './query.rb'
 require 'json'
@@ -10,6 +11,7 @@ set :port, 80
 set :db, PG.connect(host: 'localhost', user: 'postgres', dbname: 'log4micro', password: 'log4micro')
 configure do
   mime_type :json, 'application/json'
+  enable :cross_origin
 end
 
 get '/home' do
