@@ -193,16 +193,18 @@ end
 #LOGS
 
 get '/projects/:id/logs' do
-  halt 400, "invalid project id" if (params['id']=~ /\A\d+\z/).nil?
-  content_type :json
-  logs = []
-  settings.db.exec_params('select * from logs where project_id=$1::int order by id desc limit 50;', [params['id'].to_i]) do |res|
-    res.each do |row|
-      logs << row
+  begin
+    halt 400, "invalid project id" if (params['id']=~ /\A\d+\z/).nil?
+    content_type :json
+    logs = []
+    settings.db.exec_params('select * from logs where project_id=$1::int order by id desc limit 50;', [params['id'].to_i]) do |res|
+      res.each do |row|
+        logs << row
+      end
     end
+    JSON.generate(logs)
+  rescue
+    status 400
+    JSON.generate({error:'error retrieving monitoring messages with supplied parameters'})
   end
-  JSON.generate(logs)
-rescue
-  status 400
-  JSON.generate({error:'error retrieving monitoring messages with supplied parameters'})
 end
