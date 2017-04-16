@@ -1,0 +1,44 @@
+<div class="container" *ngIf="project!=null">
+  <div class="row">
+    <div class="twelve columns" id="page">
+      <div class="row header">
+        <div class="seven columns">
+          <h1>{{project.name}}</h1>
+          <h3>STATUS: {{project.status}} </h3>
+        </div>
+        <div class="five columns">
+          <ul id="log-menu">
+            <li>Logs</li>
+            <li>Events</li>
+            <li>Settings</li>
+          </ul>
+        </div>
+      </div>
+      <div class="row project-log">
+        <div class="four columns" id="logview-settings">
+          <div class="row" id="tabs">
+            <div class="six columns tab">Filter</div>
+            <div class="six columns tab">Info</div>
+          </div>
+        </div>
+        <div class="eight columns">
+          <div id="logs">
+            <div class="mm" *ngFor="let m of monitoringMessages"> 
+              <span>{{getTimeStamp(m)}}</span> - 
+              <span>{{getLogLevel(m)}}</span> - 
+              [<span>{{getFunctionName(m)}}</span>: line 
+              <span>{{getLineNumber(m)}}</span>] - 
+              <span>{{getMessage(m)}}</span>
+            </div>
+          </div>
+          <div id="search">
+            <div class="row">
+              <div class="nine columns"><input type="text" placeholder="Enter your search query ..."></div>
+              <div class="three columns"><button>Search</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>  
