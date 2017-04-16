@@ -9,6 +9,8 @@ COMMAND_TYPE = {CONNECT: 0, LOG_MESSAGE: 1}
 
 set :bind, '0.0.0.0'
 set :port, 80
+set :allow_methods, [:get, :post, :options, :put, :delete]
+
 
 set :db, PG.connect(host: 'localhost', user: 'postgres', dbname: 'log4micro', password: 'log4micro')
 configure do
