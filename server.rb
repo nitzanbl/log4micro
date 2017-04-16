@@ -5,6 +5,8 @@ require 'pg'
 require './query.rb'
 require 'json'
 
+COMMAND_TYPE = {CONNECT: 0, LOG_MESSAGE: 1}
+
 set :bind, '0.0.0.0'
 set :port, 80
 
@@ -34,7 +36,7 @@ end
 get '/projects' do
   content_type :json
   projects = []
-  settings.db.exec('select * from projects;') do |res|
+  settings.db.exec('SELECT projects.*, sessions, messages, coalesce((errors*100/messages), 0) as error_rate FROM projects LEFT JOIN (SELECT project_id, COUNT(*) as sessions FROM logs WHERE type= 0 GROUP BY project_id) as stable ON stable.project_id = id LEFT JOIN (SELECT project_id, COUNT(*) as messages FROM logs WHERE type > 0 GROUP BY project_id) as mtable on mtable.project_id = id LEFT JOIN (SELECT project_id, COUNT(*) as errors FROM logs where log_level = 'error' GROUP BY project_id) as etable on etable.project_id = id;') do |res|
     res.each do |row|
       projects << row
     end
