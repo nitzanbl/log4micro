@@ -24,7 +24,9 @@ end
 
 post '/projects' do
   content_type :json
-  res = settings.db.exec_params('insert into projects (name, description, level_control, status) values ($1::text, $2::text, \'all\', \'started\') returning *;', [params['name'].to_s, params['description'].to_s])
+  level_control = 'all'
+  level_control = params['level_control'].to_s if params.has_key? 'level_control'
+  res = settings.db.exec_params('insert into projects (name, description, level_control, status) values ($1::text, $2::text, $3::text, \'started\') returning *;', [params['name'].to_s, params['description'].to_s, level_control])
   if res.cmd_tuples > 0
     JSON.generate(res[0])
   else
