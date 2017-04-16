@@ -202,4 +202,7 @@ get '/projects/:id/logs' do
     end
   end
   JSON.generate(logs)
+rescue
+  status 400
+  JSON.generate({error:'error retrieving monitoring messages with supplied parameters'})
 end
