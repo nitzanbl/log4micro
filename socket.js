@@ -1,5 +1,6 @@
 var net = require('net');
 var pg = require('pg');
+var Pool = require('pg-pool');
 var http = require('http');
 var io = require('socket.io');
 ////////////////////// Management Message Socket////////////////////
@@ -33,10 +34,9 @@ socket.on('connection', function(client){
 ////////////////////// Monitoring Message Socket////////////////////
 
 //var client = new pg.Client({host: 'localhost', user: 'postgres', database: 'log4micro', password: 'log4micro'});
+var pool = new Pool({host: 'localhost', user: 'postgres', database: 'log4micro', password: 'log4micro', max: 10, min: 4})
 
 var checkPayload = function checkPayload(buff) {
-  console.log('buff.length: '+ buff.length);
-
   //buff has Type Project_id and Log_level_length
   if (buff.length < 6) {
     return false;
@@ -65,11 +65,9 @@ var checkPayload = function checkPayload(buff) {
   if (buff.length < length) {
     return false;
   }
-  console.log('until tags');
+
   var numTags = buff[length - 1];
   for(var i=0; i<numTags; ++i) {
-    console.log('for tags');
-
     //buff has tag_length
     if(buff.length < length + 1) {
       return false;
@@ -81,8 +79,6 @@ var checkPayload = function checkPayload(buff) {
     }
   }
 
-  console.log('after tags');
-
 
   //buff has number_of_data_fields
   if (buff.length < length + 1) {
@@ -90,12 +86,9 @@ var checkPayload = function checkPayload(buff) {
   }
 
   var numData = buff[length];
-  console.log('num data:' + numData);
 
   length += 1;
   for(var i=0; i<numData; ++i) {
-    console.log('for data');
-
     //buff has data_type and name_length
     if(buff.length < length + 2) {
       return false;
@@ -199,9 +192,7 @@ var startServer = function startServer(client) {
 
     socket.on('data', function(data){
       buffer = Buffer.concat([buffer, data]);
-      console.log(buffer.toJSON());
       var length = checkPayload(buffer);
-      console.log('length :' + length);
       if (length) {
         var message = buffer.slice(0, length);
         buffer = buffer.slice(length, buffer.length);
@@ -209,38 +200,42 @@ var startServer = function startServer(client) {
         clients.forEach(function(c) {
           c.send(message);
         })
-        console.log(message);
-        // client.query('insert into logs (project_id, log_level, log_message, tags, time, function_name, file_name, line)\
-        // values ($1, $2, $3, $4, $5, $6, $7, $8) returning *;',
-        // [message.project_id, message.log_level, message.log_message, message.tags, message.time, message.function_name, message.file_name, message.line], function(err, res) {
-        //   if(err) {
-        //     console.log(err);
-        //     return;
-        //   }else {
-        //     console.log('log was inserted');
-        //     if(message.data.length > 0){
-        //       var log_id = res.rows[0].id;
-        //       var query = 'insert into data (project_id, log_id, name, value, type) values ';
-        //       var pre = '';
-        //       var vals= [message.project_id, log_id];
-        //       for(var i=0; i<message.data.length; i+=1){
-        //         query += pre+ '($1, $2, $'+(vals.length+1)+', $'+(vals.length+2)+', $'+(vals.length+3)+')';
-        //         pre = ', ';
-        //         vals.push(message.data[i].name);
-        //         vals.push(new Buffer(message.data[i].value, 'hex'));
-        //         vals.push(message.data[i].type);
-        //       }
-        //       query +=  ';';
-        //       client.query(query, vals, function(err, res){
-        //         if(err){
-        //           console.log(err);
-        //         }else {
-        //           console.log('data was inserted');
-        //         }
-        //       });
-        //     }
-        //   }
-        // });
+        pool.connect().then(function(client) {
+          client.query('insert into logs (project_id, log_level, log_message, tags, time, function_name, file_name, line)\
+          values ($1, $2, $3, $4, $5, $6, $7, $8) returning *;',
+          [message.project_id, message.log_level, message.log_message, message.tags, message.time, message.function_name, message.file_name, message.line], function(err, res) {
+            if(err) {
+              console.log(err);
+              return;
+            }else {
+              console.log('log was inserted');
+              if(message.data.length > 0){
+                var log_id = res.rows[0].id;
+                var query = 'insert into data (project_id, log_id, name, value, type) values ';
+                var pre = '';
+                var vals= [message.project_id, log_id];
+                for(var i=0; i<message.data.length; i+=1){
+                  query += pre+ '($1, $2, $'+(vals.length+1)+', $'+(vals.length+2)+', $'+(vals.length+3)+')';
+                  pre = ', ';
+                  vals.push(message.data[i].name);
+                  vals.push(new Buffer(message.data[i].value, 'hex'));
+                  vals.push(message.data[i].type);
+                }
+                query +=  ';';
+                client.query(query, vals, function(err, res){
+                  if(err){
+                    console.log(err);
+                  }else {
+                    console.log('data was inserted');
+                  }
+                });
+              }
+            }
+          });
+        }).catch(function(err) {
+          console.log("DB ERROR", err);
+        });
+
       }
     });
 
