@@ -31,6 +31,10 @@ get '/home' do
   'hello'
 end
 
+get '/log_view' do
+  File.read("./html/index.html")
+end
+
 #PROJECTS
 
 post '/projects' do
