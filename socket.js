@@ -124,7 +124,7 @@ var getByte = function getByte(data) {
 }
 
 var getInt = function getInt(data) {
-  var x = (data.buff[0] << 24) + (data.buff[1] << 16) + (data.buff[2] << 8) + (data.buff[3]);
+  var x = (data.buff[3] << 24) + (data.buff[2] << 16) + (data.buff[1] << 8) + (data.buff[0]);
   data.buff = data.buff.slice(4, data.buff.length);
   return x;
 }
