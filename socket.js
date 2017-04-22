@@ -203,7 +203,7 @@ var startServer = function startServer(client) {
         pool.connect().then(function(client) {
           client.query('insert into logs (project_id, log_level, log_message, tags, time, function_name, file_name, line)\
           values ($1, $2, $3, $4, $5, $6, $7, $8) returning *;',
-          [message.project_id, message.log_level, message.log_message, message.tags, message.time, message.function_name, message.file_name, message.line], function(err, res) {
+          [message.project_id, message.log_level, message.log_message, message.tags, new Date(message.time*1000), message.function_name, message.file_name, message.line], function(err, res) {
             if(err) {
               console.log(err);
               return;
