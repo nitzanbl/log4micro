@@ -83,7 +83,7 @@ table tbody tr:nth-child(2n) td {
 
 
     </style>
-  <script src="http://localhost:8080/socket.io/socket.io.js"></script>
+  <script src="http://log4micro.codestaq.com:8080/socket.io/socket.io.js"></script>
 <script src="https://unpkg.com/vue"></script>
 <title>
 </title>
@@ -119,9 +119,9 @@ table tbody tr:nth-child(2n) td {
       ]
     }
   });
-    var socket = new io('http://localhost:8080');
+    var socket = new io('http://log4micro.codestaq.com:8080');
 
-    socket.connect('http://localhost:8080');
+    socket.connect('http://log4micro.codestaq.com:8080');
 
     // Add a connect listener
     socket.on('connect',function() {
