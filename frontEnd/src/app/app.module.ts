@@ -11,6 +11,7 @@ import {RouterModule } from '@angular/router';
 import {ProjectService} from './project.service';
 import { NewProjectComponent } from './new-project/new-project.component';
 import { LogViewComponent } from './log-view/log-view.component';
+import {StreamService} from './stream.service';
 
 
 
@@ -48,7 +49,8 @@ import { LogViewComponent } from './log-view/log-view.component';
     )
   ],
   providers: [
-    ProjectService
+    ProjectService,
+    StreamService
   ],
   bootstrap: [AppComponent]
 })
