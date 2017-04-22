@@ -1,0 +1,31 @@
+<div class="container" id="projectsGrid">
+  <div class="row" *ngFor="let r of rows; let i=index">
+    <div *ngIf="i==0" class="four columns newProjectContainer">
+      <a routerLink="/new_project" id="newProject">New Project</a>
+    </div>
+
+    <div *ngFor="let p of r" class="four columns">
+      <a [routerLink]="['/project',p.id]"><div class="project">
+        <div class="contents">
+          <h2>{{p.name}}</h2>
+          <h3>STATUS: {{p.status}}</h3>
+          <p>{{p.description}}</p>
+        </div>
+        <div class="row stats">
+          <div class="four columns">
+            <span class="value">{{p.sessions}}</span>
+            <span class="key">Sessions</span>
+          </div>
+          <div class="four columns">
+            <span class="value">{{p.messages}}</span>
+            <span class="key">Messages</span>
+          </div>
+          <div class="four columns">
+            <span class="value">{{p.error_rate}}%</span>
+            <span class="key">Error Rate</span>
+          </div>
+        </div>
+      </div></a>
+    </div>
+  </div>
+</div>

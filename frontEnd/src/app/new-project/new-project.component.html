@@ -1,0 +1,38 @@
+<div class="container">
+  <div class="row">
+    <div class="six columns offset-by-three" id="newForm">
+      <div *ngIf = "loading" class="loader-container">
+        <div class="loader">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+      <h1> New Project</h1>
+      <hr>
+      <fieldset>
+        <label for="name">Name</label>
+        <input type="text" name="name" placeholder="Project Name" [(ngModel)]=name id="name">
+      </fieldset>
+      <fieldset>
+        <label for="desc">Description</label>
+        <textarea [(ngModel)]=desc id="desc"></textarea>
+      </fieldset>
+      <fieldset>
+        <label for="level_control">Level-Control</label>
+        <select [(ngModel)]=level_control id="level_control">
+          <option value="all">All</option>
+          <option value="trace">Trace</option>
+          <option value="debug">Debug</option>
+          <option value="info">Info</option>
+          <option value="warn">Warning</option>
+          <option value="error">Error</option>
+        </select>
+      </fieldset>
+      <div class="row align-right">
+        <button (click)="createProject()">Create Project!</button>
+      </div>
+    </div>
+  </div>
+</div>
