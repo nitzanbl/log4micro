@@ -410,10 +410,17 @@ header img {
 #page #logs {
   background: #172121;
   width: 100%;
-  height: 100%;
   float: none;
   box-sizing: border-box;
   position: absolute;
+  font-family: 'Source Code Pro', monospace;
+  font-weight: 600;
+  color: white; 
+  font-size: 13px;
+  top: 0px;
+  bottom: 0px;
+  margin-bottom: 30px;
+  overflow: scroll;
 }
 #page .project-log > .columns:last-child {
   margin: 0px;
@@ -465,12 +472,6 @@ header img {
 #page #tabs > .columns.active{
   background-color: white;
   color: #3B434A;
-}
-#page #logs {
-  font-family: 'Source Code Pro', monospace;
-  font-weight: 600;
-  color: white; 
-  font-size: 13px;
 }
 #page #logs .mm {
   padding: 1px 6px;
