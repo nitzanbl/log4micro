@@ -22,7 +22,7 @@
           </div>
         </div>
         <div class="eight columns">
-          <div id="logs">
+          <div id="logs" #logs>
             <div class="mm" *ngFor="let m of monitoringMessages"> 
               <span>{{getTimeStamp(m)}}</span> - 
               <span>{{getLogLevel(m)}}</span> - 
