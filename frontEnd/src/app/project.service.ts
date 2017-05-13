@@ -18,12 +18,25 @@ export class ProjectService {
     return this.http.post(this.base_url + '/projects', {name, description, level_control}).toPromise()
     .then((res) => res.json() as Project);
   }
-
+  updateProject(id:number, name: string, description: string): Promise<any> {
+    var headers = new Headers();
+    headers.append('Content-Type', 'application/x-www-form-urlencoded')
+    return this.http.put(this.base_url + '/projects/'+id, 
+    encodeURI("name=" + name + "&description=" + description),{
+      headers: headers
+    }).toPromise()
+    .then((res) => res.json());
+  }
   getProjectById(id: number): Promise<Project> {
     return this.http.get(this.base_url + '/projects/' + id).toPromise().then((res) => res.json() as Project);
   }
 
   getLogsByProjectId(id: number): Promise<MonitoringMessage[]> {
     return this.http.get(this.base_url + '/projects/' + id + '/logs').toPromise().then((res) => res.json() as MonitoringMessage[]);
+  }
+
+  deleteProject(id:number): Promise<any> {
+    return this.http.delete(this.base_url + '/projects/'+id).toPromise()
+    .then((res) => res.json());
   }
 }

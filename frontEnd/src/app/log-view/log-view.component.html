@@ -8,26 +8,47 @@
         </div>
         <div class="five columns">
           <ul id="log-menu">
-            <li>Logs</li>
+            <li routerLinkActive="active" [routerLinkActiveOptions]="{exact:
+true}" [routerLink]="['/project',project.id]">Logs</li>
             <li>Events</li>
-            <li>Settings</li>
+            <li routerLinkActive="active" [routerLinkActiveOptions]="{exact:
+true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
           </ul>
         </div>
       </div>
       <div class="row project-log">
         <div class="four columns" id="logview-settings">
           <div class="row" id="tabs">
-            <div class="six columns tab">Filter</div>
-            <div class="six columns tab">Info</div>
+            <div class="six columns tab" [ngClass]="{active: currentTab==0}"
+            (click)="currentTab=0">Filter</div>
+            <div class="six columns tab" [ngClass]="{active: currentTab==1}"
+            (click)="currentTab=1">Info</div>
+          </div>
+          <div class="row tabsContent">
+            <div class="twelve columns">
+              <h3>Log Levels</h3>
+              <p-checkbox name="filterLevel" value="TRACE" label="TRACE"
+              [(ngModel)]="filteredLevels"></p-checkbox>
+              <p-checkbox name="filterLevel" value="DEBUG" label="DEBUG"
+              [(ngModel)]="filteredLevels"></p-checkbox>
+              <p-checkbox name="filterLevel" value="INFO" label="INFO"
+              [(ngModel)]="filteredLevels"></p-checkbox>
+              <p-checkbox name="filterLevel" value="WARN" label="WARN"
+              [(ngModel)]="filteredLevels"></p-checkbox>
+              <p-checkbox name="filterLevel" value="ERROR" label="ERROR"
+              [(ngModel)]="filteredLevels"></p-checkbox>
+              <h3>Date</h3>
+              <ng2-datepicker [options]="options" [(ngModel)]="filterTime" #cal></ng2-datepicker>
+            </div>
           </div>
         </div>
         <div class="eight columns">
           <div id="logs" #logs>
-            <div class="mm" *ngFor="let m of monitoringMessages"> 
-              <span>{{getTimeStamp(m)}}</span> - 
-              <span>{{getLogLevel(m)}}</span> - 
-              [<span>{{getFunctionName(m)}}</span>: line 
-              <span>{{getLineNumber(m)}}</span>] - 
+            <div class="mm" *ngFor="let m of monitoringMessages">
+              <span>{{getTimeStamp(m)}}</span> -
+              <span>{{getLogLevel(m)}}</span> -
+              [<span>{{getFunctionName(m)}}</span>: line
+              <span>{{getLineNumber(m)}}</span>] -
               <span>{{getMessage(m)}}</span>
             </div>
           </div>
@@ -41,4 +62,4 @@
       </div>
     </div>
   </div>
-</div>  
+</div>

@@ -1,5 +1,5 @@
 /* You can add global styles to this file, and also import other style files */
-/* http://meyerweb.com/eric/tools/css/reset/ 
+/* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
    License: none (public domain)
 */
@@ -13,8 +13,8 @@ b, u, i, center,
 dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td,
-article, aside, canvas, details, embed, 
-figure, figcaption, footer, header, hgroup, 
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
 menu, nav, output, ruby, section, summary,
 time, mark, audio, video {
 	margin: 0;
@@ -25,7 +25,7 @@ time, mark, audio, video {
 	vertical-align: baseline;
 }
 /* HTML5 display-role reset for older browsers */
-article, aside, details, figcaption, figure, 
+article, aside, details, figcaption, figure,
 footer, header, hgroup, menu, nav, section {
 	display: block;
 }
@@ -104,6 +104,14 @@ table {
   /* Offsets */
   .offset-by-one.column,
   .offset-by-one.columns          { margin-left: 8.66666666667%; }
+	/*.offset-by-one.columns.slider {
+		width: 87.5%;
+		    margin-left: 7.75%;
+}*/
+#sliderContainer {
+      margin-left: 15%;
+    width: 71%;
+}
   .offset-by-two.column,
   .offset-by-two.columns          { margin-left: 17.3333333333%; }
   .offset-by-three.column,
@@ -144,8 +152,10 @@ table {
   display: table;
   clear: both; }
 
-
-body {
+.bold {
+  font-weight: bold;
+}
+body, input, button {
     font-family: "myriad-pro";
     background: #E8EDED;
 }
@@ -254,8 +264,8 @@ header img {
 #newForm {
   position: relative;
   background: white;
-  padding: 20px; 
-  box-shadow: 4px 4px 30px 4px rgba(0,0,0,0.2);    
+  padding: 20px;
+  box-shadow: 4px 4px 30px 4px rgba(0,0,0,0.2);
   border-radius: 4px;
 }
 #newForm h1 {
@@ -302,7 +312,7 @@ header img {
 }
 #newForm button:hover {
   background: #cacaca;
-  color: #172121; 
+  color: #172121;
 }
 #newForm .loader-container {
     position: absolute;
@@ -378,9 +388,10 @@ header img {
 }
 #page {
   background: white;
-  box-shadow: 4px 4px 30px 4px rgba(0,0,0,0.2);    
+  box-shadow: 4px 4px 30px 4px rgba(0,0,0,0.2);
   border-radius: 4px;
   overflow: hidden;
+  margin-bottom: 30px;
 }
 #page .header {
   padding: 25px;
@@ -388,11 +399,11 @@ header img {
 #page .header h1 {
   font-size: 32px;
   margin-bottom: 4px;
-} 
+}
 #page .header h3 {
   text-transform: uppercase;
   font-size: 13px;
-} 
+}
 #log-menu {
   text-align: center;
 }
@@ -406,6 +417,17 @@ header img {
   border-bottom: 3px solid #172121;
   width: 30%;
   box-sizing: border-box;
+	cursor: pointer;
+}
+#log-menu li.active {
+border-bottom: 3px solid #172121;
+	background: #172121;
+	color: #FFF;
+}
+#log-menu li:hover {
+	background: #3f7296;
+	color: #FFF;
+  border-bottom: 3px solid #3f7296;
 }
 #page #logs {
   background: #172121;
@@ -415,7 +437,7 @@ header img {
   position: absolute;
   font-family: 'Source Code Pro', monospace;
   font-weight: 600;
-  color: white; 
+  color: white;
   font-size: 13px;
   top: 0px;
   bottom: 0px;
@@ -427,7 +449,7 @@ header img {
   width: 69.3333333333%
 }
 #page #logview-settings {
-  background-color: #3B434A; 
+  background-color: #3B434A;
 }
 #page #search {
   position: absolute;
@@ -441,7 +463,7 @@ header img {
 #page #search button{
   width: 100%;
   box-sizing: border-box;
-  background-color: #4B6982; 
+  background-color: #4B6982;
   border: 0;
   border-radius: 0;
   font-size: 13px;
@@ -468,11 +490,261 @@ header img {
   border-bottom: 1px solid white;
   color: white;
   font-size: 14px;
+  cursor: pointer;
+}
+#page #tabs > .columns:hover {
+  font-weight: bold;
 }
 #page #tabs > .columns.active{
   background-color: white;
   color: #3B434A;
 }
+#page .tabsContent {
+  box-sizing: border-box;
+  padding: 14px;
+}
+#page .tabsContent h3 {
+  margin-top:30px;
+  margin-bottom: 5px;
+  color: white;
+  font-size:18px;
+  text-decoration: underline;
+}
+#page .tabsContent h3:first-child {
+  margin-top: 10px;
+}
+#page .tabsContent .ui-chkbox-label{
+  display: inline-block;
+  color: white;
+  font-size:13px;
+}
+.ui-chkbox .ui-chkbox-box {
+    width: 15px;
+    height: 15px;
+    background: transparent;
+}
+p-checkbox {
+    width: 86px;
+    display: inline-block;
+    margin-bottom: 5px;
+}
 #page #logs .mm {
   padding: 1px 6px;
+}
+
+table#level_control {
+	width: 100%;
+	margin-bottom: 10px;
+	margin-top: 40px;
+}
+table#level_control td {
+	width: 15%;
+	text-align: center;
+  cursor: pointer;
+  border-top: 2px solid white;
+  padding-top: 3px;
+  padding-bottom: 8px;
+}
+table#level_control td span {
+  padding-top: 2px;
+  border-top: 3px solid white;
+}
+table#level_control td:hover span,table#level_control td.selected span{
+	border-top: 3px solid;
+}
+.row.settings h3 {
+	font-size: 22px;
+	font-weight: bold;
+	margin-bottom: 20px;
+}
+.offset-by-one.columns.slider {
+	cursor: pointer;
+}
+.ui-slider  .ui-slider-handle {
+    background: white;
+    border: 2px solid #172121; 
+    border-radius: 40px;
+    padding: 0px 20px;
+    vertical-align: bottom;
+    margin-top: -4px;
+}
+.settings hr {
+  margin-bottom: 40px; 
+  margin-top: 40px;
+}
+#changeProjectDetails {
+  padding-bottom: 30px;
+  overflow: hidden;
+}
+#changeProjectDetails .row {
+  margin-bottom: 10px;
+}
+#changeProjectDetails input{
+  display: block;
+  width:100%;
+  padding: 4px 0px 4px 10px;
+  border-radius: 4px;
+  border: 1px solid #ADADAD;
+  font: 16px;
+  font-weight: bold;
+}
+#changeProjectDetails #save {
+  display: block;
+  margin: auto;
+  margin-top: 30px;
+  width: 20%;
+  min-width: 200px;
+  padding: 9px 0px 9px 0px;
+  border-radius: 4px;
+  border: 2px solid #172121;
+  background-color: #172121;
+  color: white;
+  cursor: pointer; 
+  font-size: 16px;
+  font-weight: bolder;
+}
+#changeProjectDetails #save:hover {
+  background-color: white;
+  color: #172121;
+}
+#changeProjectDetails #dangerZone{
+  color: #Ae2121;
+}
+#changeProjectDetails #delete {
+  padding: 9px 0px 9px 0px;
+  border-radius: 4px;
+  border: 2px solid #Ae2121;
+  background-color: #Ae2121;
+  color: white;
+  margin-top: 12px;
+  cursor: pointer;
+   display: block;
+  margin: auto;
+  margin-top: 30px;
+  width: 20%;
+  min-width: 200px;
+  font-size: 16px;
+  font-weight: bolder;
+}
+#changeProjectDetails #delete:hover {
+  background-color: white;
+  color: #Ae2121;
+}
+code {
+    font-family: monospace;
+    background: #EEEEEE;
+    padding: 3px 6px;
+    border-radius: 3px;
+}
+pre code {
+  background: #EEEEEE;
+  display: block;
+  font-family: monospace;
+  font-size: 16px;
+  padding: 18px;
+  border-radius: 4px;
+  border: 1px solid rgba(0,0,0,0.2);
+  margin-top: 12px;
+}
+
+#changeProjectDetails p {
+  margin-top: 14px;
+}
+
+
+pre code span.func_type {
+  /*color: #F54C4C*/
+  font-weight: bold;
+}
+pre code span.func_name {
+  color: #D48002;
+}
+pre code span.func_val {
+  color: #F54C4C;
+  font-weight: bold;
+}
+pre code span.log4micro_func {
+  color: #2696E0;
+}
+pre code span.comment {
+  color: #4FBD60;
+}
+
+#popupWrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.4);
+}
+#popupWrapper .popup {
+    width: 500px;
+    background: #FFF;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    margin-left: -250px;
+    margin-top: -100px;
+    box-sizing: border-box;
+    padding: 20px;
+    border-radius: 4px;
+    box-shadow: 2px 3px 6px 3px rgba(0,0,0,0.2);
+}
+
+#popupWrapper .popup h1 {
+    font-weight: bold;
+    font-size: 25px;
+}
+#popupWrapper .popup hr {
+    border: 1px solid rgba(0,0,0,0.3);
+}
+#popupWrapper .popup p {
+  margin-bottom: 11px;
+}
+
+#popupWrapper .popup p b {
+  font-weight: bold;
+}
+
+#popupWrapper .popup input {
+  display: block;
+  width: 100%;
+  border-radius: 4px;
+  background: #EEE;
+  border: 1px solid #CECECE;
+  margin-top: 10px;
+  padding: 6px 8px;
+  font-size: 15px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+}
+
+#popupWrapper .popup button {
+  display: block;
+  width: 100%;
+  border-radius: 4px;
+  margin-top: 10px;
+  padding: 6px 8px;
+  font-size: 16px;
+  box-sizing: border-box;
+  margin-bottom: 10px;
+  border: 2px solid #Ae2121;
+  color: #FFF;
+  font-weight: bold;
+  text-transform: uppercase;
+  background: #Ae2121;
+  cursor: pointer;
+}
+
+#popupWrapper .popup button:hover {
+  color: #Ae2121;
+  background: #FFF;
+}
+
+#popupWrapper .popup button:disabled {
+  border: 2px solid #AEAEAE;
+  color: #172121;
+  background: #CECECE;
+  cursor: not-allowed;
 }

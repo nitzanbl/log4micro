@@ -1,9 +1,10 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewChecked, ViewChild } from '@angular/core';
 import {ProjectService} from '../project.service';
 import {Project} from '../project';
 import {ActivatedRoute} from '@angular/router';
 import {MonitoringMessage} from '../monitoring-message';
 import {StreamService} from '../stream.service'
+import { DatePickerOptions, DateModel } from 'ng2-datepicker';
 
 
 @Component({
@@ -11,16 +12,30 @@ import {StreamService} from '../stream.service'
   templateUrl: './log-view.component.html',
   styleUrls: ['./log-view.component.css']
 })
-export class LogViewComponent implements OnInit {
+export class LogViewComponent implements OnInit, AfterViewChecked  {
   project: Project = null;
   monitoringMessages: MonitoringMessage[]  = [];
   connection;
+  currentTab = 0;
+  filterTime: DateModel;
+  option: DatePickerOptions; 
+  
+  filteredLevels= ['INFO','ERROR'];
+ 
   constructor(private rout: ActivatedRoute, private projectService: ProjectService, private streamService: StreamService) { }
+ 
   @ViewChild('logs') logs; 
+  @ViewChild('cal') calendar;
+
   ngOnInit() {
+    this.option = new DatePickerOptions();
+    this.option.initialDate = new Date();
+    this.option.firstWeekdaySunday = true;
+    this.option.autoApply = true;
     this.rout.params.subscribe((params)=>{
       this.projectService.getProjectById(+params['id']).then((proj)=>{
         this.project = proj;
+
       })
       this.connection = this.streamService.getMessages().subscribe((message: any) => {
       var mMessage: MonitoringMessage = new MonitoringMessage();
@@ -40,7 +55,6 @@ export class LogViewComponent implements OnInit {
       mMessage.file_name = message.file_name;
       mMessage.line = message.line;
       mMessage.type = message.type;
-
       this.monitoringMessages.push(mMessage);
       this.logs.nativeElement.scrollTop = this.logs.nativeElement.scrollHeight
       })
@@ -49,6 +63,13 @@ export class LogViewComponent implements OnInit {
         // this.logs.nativeElement.scrollTop = this.logs.nativeElement.scrollHeight
       })
     })
+  }
+
+  ngAfterViewChecked() {
+    if (typeof this.calendar != "undefined") {
+      
+      console.log("opened");
+    }
   }
 
   getTimeStamp(msg): string {

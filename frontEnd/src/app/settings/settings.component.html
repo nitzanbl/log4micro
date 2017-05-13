@@ -1,0 +1,99 @@
+<div class="container" *ngIf="project!=null">
+  <div class="row">
+    <div class="twelve columns" id="page">
+      <div class="row header">
+        <div class="seven columns">
+          <h1>{{project.name}} >> Settings</h1>
+          <h3>STATUS: {{project.status}} </h3>
+        </div>
+        <div class="five columns">
+          <ul id="log-menu">
+            <li routerLinkActive="active" [routerLinkActiveOptions]="{exact:
+true}" [routerLink]="['/project',project.id]">Logs</li>
+            <li>Events</li>
+            <li routerLinkActive="active" [routerLinkActiveOptions]="{exact:
+true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
+          </ul>
+        </div>
+      </div>
+      <div class="row settings">
+        <div class="ten columns offset-by-one column">
+          <h3>Level Control</h3>
+          <table id="level_control">
+            <tr>
+              <td [ngClass]="{selected:val==0}" (click)="changeLevel(0)"><span>ALL</span></td>
+              <td [ngClass]="{selected:val==1}" (click)="changeLevel(1)"><span>DEBUG</span></td>
+              <td [ngClass]="{selected:val==2}" (click)="changeLevel(2)"><span>TRACE</span></td>
+              <td [ngClass]="{selected:val==3}" (click)="changeLevel(3)"><span>INFO</span></td>
+              <td [ngClass]="{selected:val==4}" (click)="changeLevel(4)"><span>WARN</span></td>
+              <td [ngClass]="{selected:val==5}" (click)="changeLevel(5)"><span>ERROR</span></td>
+              <td [ngClass]="{selected:val==6}" (click)="changeLevel(6)"><span>OFF</span></td>
+            </tr>
+          </table>
+          
+        </div>
+            <div class="nine slider columns" id="sliderContainer">
+              <p-slider (onChange)="handleChange($event)" [(ngModel)]="val" [step]="1" [min]="0" [max]="6"></p-slider>
+            </div>
+    </div>
+    <div class="row settings">
+      <div id="changeProjectDetails">
+      <div class="ten columns offset-by-one column">
+          <hr>
+          <h3>Project Details</h3>
+          <fieldset>
+            <div class="row">
+              <div class="four columns"><label for="projectName">Project Name:</label></div>
+              <div class="eight columns"><input type="text" name="projectName" [(ngModel)]="name"></div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <div class="row">
+              <div class="four columns"><label for="projectDesc">Project Description:</label></div>
+              <div class="eight columns"><input type="text" name="projectDesc" [(ngModel)]="description"></div>
+            </div>
+          </fieldset>
+          <button id="save" (click)="saveChanges()">Save</button>
+        </div>
+          <div class="ten columns offset-by-one column">
+          <hr>
+          <h3>Connection Info</h3>
+          <fieldset>
+            <div class="row">
+              <div class="four columns"><label for="projectId">ProjectID:</label></div>
+              <div class="eight columns"><input type="text" name="projectId" disabled=true [value]="project.id"></div>
+            </div>
+          </fieldset>
+          <p>
+          To connect to this project add the project id to the Log4Micro <code>connect</code> method:
+          </p>
+<pre><code><span class="func_type">void</span> <span class="func_name">setup</span>() {{ '{' }}
+
+    <span class="log4micro_func">log4micro_connect</span>(<span class="func_val">{{project.id}}</span>);
+
+    <span class="comment">/** other setup code here **/</span>
+}</code></pre>
+        </div>
+        <div class="ten columns offset-by-one column">
+          <hr>
+          <h3 id="dangerZone">Danger Zone!</h3>
+          <span class="bold">Delete Project</span> - once project is deleted there is no going back!
+          <button id="delete" (click)="showDeletePopup = true;">DELETE PROJECT</button>
+        </div>
+      </div>
+    </div>
+
+    </div>
+  </div>
+
+<div id="popupWrapper" *ngIf="showDeletePopup" (click)="hideDeletePopup($event)">
+  <div id="deletePopup" class="popup">
+    <h1>Delete Project</h1>
+    <hr>
+    <p>This action cannot be <b>UNDONE</b> and will permanently remove this project and all associated logs.</p>
+    <p>If you are sure please enter <code>{{project.name}}</code> below for confirmation</p>
+    <input type="text" id="projName" [(ngModel)]="deleteName">
+    <button [disabled]="project.name != deleteName" (click)="deleteProject()">Delete</button>
+  </div>
+</div>
+</div>
