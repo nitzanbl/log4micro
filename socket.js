@@ -5,6 +5,7 @@ var http = require('http');
 var io = require('socket.io');
 ////////////////////// Management Message Socket////////////////////
 var clients = [];
+var localHubs = {};
 var server = http.createServer(function(req, res){
     res.writeHead(200,{ 'Content-Type': 'text/html' });
     res.end('log4micro web socket');
@@ -21,6 +22,42 @@ socket.on('connection', function(client){
     clients.push(client);
     // Success!  Now listen to messages to be received
     client.on('message',function(event){
+
+      pool.connect().then(function(client) {
+        client.query('update projects set level_control = $1 where id = $2;',
+        [event.log_level, event.project_id], function(err, res) {
+          if(err) {
+            console.log(err);
+            return;
+          }else {
+            console.log('level control was changed !');
+          }
+        });
+      }).catch(function(err) {
+        console.log("DB ERROR", err);
+      });
+
+
+        if (localHubs.hasOwnProperty(event.project_id)) {
+          var log_level  = 0;
+          if (event.log_level == 'TRACE') {
+            log_level = 1;
+          } else if(event.log_level == 'DEBUG') {
+            log_level = 2;
+          } else if(event.log_level == 'INFO') {
+            log_level = 3;
+          } else if(event.log_level == 'WARN') {
+            log_level = 4;
+          } else if(event.log_level == 'ERROR') {
+            log_level = 5;
+          } else if(event.log_level == 'FATAL') {
+            log_level = 6;
+          } else if(event.log_level == 'OFF') {
+            log_level = 7;
+          }
+          var message = new Buffer([1, log_level]);
+          localHubs[event.project_id].write(message);
+        }
         console.log('Received message from client!',event);
     });
 
@@ -184,9 +221,13 @@ var parseMonitoringMessage = function parseMonitoringMessage(buff) {
 var startServer = function startServer(client) {
   var server = net.createServer(function(socket) {
     console.log('socket connected');
+    var socket_project_id = null;
     var buffer = new Buffer([]);
     socket.on('close', function(had_error){
-
+      if(socket_project_id != null) {
+        delete localHubs[socket_project_id];
+        socket_project_id = null;
+      }
     });
 
 
@@ -197,13 +238,21 @@ var startServer = function startServer(client) {
         var message = buffer.slice(0, length);
         buffer = buffer.slice(length, buffer.length);
         message = parseMonitoringMessage(message);
-        clients.forEach(function(c) {
-          c.send(message);
+        localHubs[message.project_id] = socket;
+        socket_project_id = message.project_id;
+        clients = clients.filter(function(c) {
+          try {
+            c.send(message);
+            return true;
+          } catch(e) {
+            console.log("exception : " + e);
+            return false;
+          }
         })
         pool.connect().then(function(client) {
-          client.query('insert into logs (project_id, log_level, log_message, tags, time, function_name, file_name, line)\
-          values ($1, $2, $3, $4, $5, $6, $7, $8) returning *;',
-          [message.project_id, message.log_level, message.log_message, message.tags, new Date(message.time*1000), message.function_name, message.file_name, message.line], function(err, res) {
+          client.query('insert into logs (project_id, log_level, log_message, tags, time, function_name, file_name, line, type)\
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning *;',
+          [message.project_id, message.log_level, message.log_message, message.tags, new Date(message.time*1000), message.function_name, message.file_name, message.line, message.command_type], function(err, res) {
             if(err) {
               console.log(err);
               return;
