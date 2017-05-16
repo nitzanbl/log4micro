@@ -210,7 +210,7 @@ get '/projects/:id/logs' do
     if params.has_key? "log_level"
       levels = params["log_level"].split("|")
       levels = PG::TextEncoder::Array.new.encode(levels)
-      query += "and log_level in $#{index_parameters}::text[] "
+      query += "and log_level in $#{index_parameters}::array "
       parameters << levels
       index_parameters += 1
     end
