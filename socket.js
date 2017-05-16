@@ -4,6 +4,7 @@ var Pool = require('pg-pool');
 var http = require('http');
 var io = require('socket.io');
 ////////////////////// Management Message Socket////////////////////
+var logLevels = ['TRACE', 'DEBUG', 'INFO', 'WARN', 'ERROR', 'FATAL'];
 var clients = [];
 var localHubs = {};
 var server = http.createServer(function(req, res){
@@ -147,6 +148,122 @@ var checkPayload = function checkPayload(buff) {
 
 }
 
+var sendTriggerNotification = function sendTriggerNotification(trigger, data) {
+  clients = clients.filter(function(c) {
+    try {
+      c.emit('trigger_notification', {
+        message: trigger.message,
+        name: data.name,
+      });
+      return true;
+    } catch(e) {
+      console.log("exception : " + e);
+      return false;
+    }
+  })
+}
+
+var parseDataType = function parseDataType(data, type) {
+  try {
+    if (type == 0) {
+      return data.readInt32BE();
+    } else if (type == 1) {
+      data.toString();
+    } else if (type == 3) {
+      return data.readFloatBE();
+    } else if (type == 4) {
+      return (data.readInt32BE(0)<<8) + data.readInt32BE(4)
+    }
+  } catch() {
+    return null;
+  }
+}
+// types 0-int 1-string 2-bool 3-float 4-pointer 5-binary 4n-array of type n
+var testCompareData = function testCompareData(trigger, data) {
+  if (trigger.trigger_data_name != data.name) { return false }
+  if(data.type == -1) {
+    if(trigger.trigger_condition == '>') {
+      if(data.value > trigger.trigger_value[0]) {
+        return true;
+      }
+    } else if(trigger.trigger_condition == '<') {
+      if(data.value < trigger.trigger_value[0]) {
+        return true;
+      }
+
+    } else if(trigger.trigger_condition == '=') {
+      if(data.value == trigger.trigger_value[0]) {
+        return true;
+      }
+
+    } else if(trigger.trigger_condition == '!=') {
+      if(data.value != trigger.trigger_value[0]) {
+        return true;
+      }
+    }
+  } else if (data.type == 2 || data.type == 5 || data.type >= 40) {
+    if (trigger.trigger_condition == '=') {
+      if (data.value.equals(trigger.trigger_value)) {
+        return true;
+      }
+   } else if(trigger.trigger_condition == '!=') {
+     if (!data.value.equals(trigger.trigger_value)) {
+       return true;
+     }
+   }
+ } else {
+  var trigger_value = parseDataType(trigger.trigger_value, data.type);
+  var data_value = parseDataType(data.value, data.type);
+  if(trigger.trigger_condition == '>') {
+    if(data_value > trigger_value) {
+      return true;
+    }
+  } else if(trigger.trigger_condition == '<') {
+    if(data_value < trigger_value) {
+      return true;
+    }
+
+  } else if(trigger.trigger_condition == '=') {
+    if(data_value == trigger_value) {
+      return true;
+    }
+
+  } else if(trigger.trigger_condition == '!=') {
+    if(data_value != trigger_value) {
+      return true;
+    }
+  }
+}
+return false;
+}
+
+var checkForTriggers = function checkForTriggers(psql, message) {
+  var dataMap = {log4micro_log_level: {type: -1, name: 'log4micro_log_level', value: logLevels.indexOf(message.log_level)}};
+  var data_numbers = '';
+  var trigger_q_values = [message.project_id, 'log4micro_log_level']
+  if (message.data.length > 0) {
+    data_numbers = ', ' + message.data.map(function(d,i) {
+      dataMap[d.name] = d;
+      trigger_q_values.push(d.name)
+      return '$'+(i+2);
+    }).join(', ')
+  }
+  psql.query('SELECT * FROM triggers where project_id = $1 and trigger_data_name in ($2' + data_numbers + ');', trigger_q_values, function(err, res) {
+    if(err) {
+      console.log(err);
+    } else {
+      for(var i=0; i<res.rows.length; i+=1) {
+        if(dataMap.hasOwnProperty(res.rows[i].trigger_data_name)) {
+          if(testCompareData(res.rows[i], dataMap[res.rows[i].trigger_data_name])) {
+            sendTriggerNotification(res.rows[i], dataMap[res.rows[i].trigger_data_name]);
+          }
+        }
+      }
+    }
+  });
+
+}
+
 var getByte = function getByte(data) {
   var n = data.buff[0];
   data.buff = data.buff.slice(1, data.buff.length);
@@ -218,6 +335,8 @@ var parseMonitoringMessage = function parseMonitoringMessage(buff) {
 //});
 
 
+
+
 var startServer = function startServer(client) {
   var server = net.createServer(function(socket) {
     console.log('socket connected');
@@ -250,6 +369,17 @@ var startServer = function startServer(client) {
           }
         })
         pool.connect().then(function(client) {
+
+          var data_numbers = '';
+          var trigger_q_values = [4, 'log4micro_log_level']
+          if (message.data.length > 0) {
+            data_numbers = ', ' + message.data.map(function(d,i) {
+              trigger_q_values.push(d.name)
+              return '$'+(i+2);
+            }).join(', ')
+          }
+          'SELECT * FROM triggers where project_id = $1 and trigger_data_name in ($2' + data_numbers + ');';
+
           client.query('insert into logs (project_id, log_level, log_message, tags, time, function_name, file_name, line, type)\
           values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning *;',
           [message.project_id, message.log_level, message.log_message, message.tags, new Date(message.time*1000), message.function_name, message.file_name, message.line, message.command_type], function(err, res) {

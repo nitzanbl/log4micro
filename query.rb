@@ -38,24 +38,28 @@ class Query
     set_vars = []
     update_params.each_with_index do |(k, v), i|
       type = if v.is_a? Fixnum
-        "int"
+        "::int"
       elsif v.is_a? String
-        "text"
+        "::text"
+      else
+        ""
       end
       @values << v
-      set_vars << "#{k.to_s} = $#{@values.length}::#{type}"
+      set_vars << "#{k.to_s} = $#{@values.length}#{type}"
 
     end
     query += set_vars.join(", ")
     where_vars = []
     where_params.each_with_index do |(k, v), i|
       type = if v.is_a? Fixnum
-        "int"
+        "::int"
       elsif v.is_a? String
-        "text"
+        "::text"
+      else
+        ""
       end
       @values << v
-      where_vars << "#{k.to_s} = $#{@values.length}::#{type}"
+      where_vars << "#{k.to_s} = $#{@values.length}#{type}"
 
     end
     if where_vars.length > 0

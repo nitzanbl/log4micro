@@ -116,11 +116,13 @@ end
 
 post '/projects/:project_id/triggers' do
   content_type :json
-  res = getDBConnection.exec_params('insert into triggers (project_id, trigger_data_id, trigger_condition, trigger_value) values ($1::int, $2::int, $3::text, $4) returning *;',
+  res = getDBConnection.exec_params('insert into triggers (project_id, trigger_data_name, trigger_condition, trigger_value, message) values ($1::int, $2::text, $3::text, $4, $5::text) returning *;',
     [params['project_id'].to_i,
-    params['trigger_data_id'].to_i,
+    params['trigger_data_name'].to_s,
     params['trigger_condition'].to_s,
-    {value: [params['trigger_value']].pack('H*'), format: 1}])
+    {value: [params['trigger_value']].pack('H*'), format: 1},
+    params['message'].to_s
+    ])
   if res.cmd_tuples > 0
     JSON.generate(res[0])
   else
@@ -154,6 +156,27 @@ get '/projects/:project_id/triggers/:id' do
   else
     JSON.generate(trigger)
   end
+end
+
+put '/projects/:project_id/triggers/:id' do
+  content_type :json
+  query = Query.new(:triggers, :update)
+  if params.has_key? "trigger_data_name"
+    query.add_update_param( :trigger_data_name, params['trigger_data_name'] )
+  end
+  if params.has_key? "trigger_value"
+    query.add_update_param( :trigger_value, {value: [params['trigger_value']].pack('H*'), format: 1} )
+  end
+  if params.has_key? "trigger_condition"
+    query.add_update_param( :trigger_condition, params['trigger_condition'] )
+  end
+  if params.has_key? "message"
+    query.add_update_param( :message, params['message'] )
+  end
+  query.add_where_param(:id, params["id"].to_i)
+  qstr = query.query_string
+  getDBConnection.exec_params(qstr, query.val)
+  JSON.generate({msg: "your trigger was updated successfully"})
 end
 
 delete '/projects/:project_id/triggers/:id' do
