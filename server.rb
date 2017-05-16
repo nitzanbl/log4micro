@@ -4,6 +4,7 @@ require 'sinatra/cross_origin'
 require 'pg'
 require './query.rb'
 require 'json'
+require 'date'
 
 COMMAND_TYPE = {CONNECT: 0, LOG_MESSAGE: 1}
 
@@ -198,13 +199,56 @@ get '/projects/:project_id/data/:id' do
 end
 
 #LOGS
-
+#msg log_level time
 get '/projects/:id/logs' do
   begin
     halt 400, "invalid project id" if (params['id']=~ /\A\d+\z/).nil?
     content_type :json
+    index_parameters = 2
+    query = 'select * from logs where project_id=$1::int '
+    parameters = [params['id'].to_i]
+    if params.has_key? "log_level"
+      levels = params["log_level"].split("|")
+      levels = PG::TextEncoder::Array.new.encode(levels)
+      query += "and log_level in $#{index_parameters}::text[] "
+      parameters << levels
+      index_parameters += 1
+    end
+    if params.has_key? "message"
+      msg = "%" + params["message"] + "%"
+      query += "and log_message ilike $#{index_parameters}::text "
+      parameters << msg
+      index_parameters += 1
+    end
+    if params.has_key? "start_time"
+      start_time = params["start_time"]
+      start_time = PG::TextEncoder::TimestampWithoutTimeZone.new.encode(DateTime.strptime(start_time, '%s'))
+      query += "and time >= $#{index_parameters}::timestamp "
+      parameters << start_time
+      index_parameters += 1
+    end
+    if params.has_key? "end_time"
+      end_time = params["end_time"]
+      end_time = PG::TextEncoder::TimestampWithoutTimeZone.new.encode(DateTime.strptime(end_time, '%s'))
+      query += "and time <= $#{index_parameters}::timestamp "
+      parameters << end_time
+      index_parameters += 1
+    end
     logs = []
-    getDBConnection.exec_params('select * from logs where project_id=$1::int order by id desc limit 500;', [params['id'].to_i]) do |res|
+    limit = if params.has_key? "limit"
+        params["limit"].to_i
+    else
+        100
+    end
+    parameters << limit
+    offset = if params.has_key? "offset"
+        params["offset"]
+    else
+        0
+    end
+    parameters << offset
+    query += "order by time desc, id desc limit $#{index_parameters}::int offset $#{index_parameters+1};"
+    getDBConnection.exec_params(query, parameters) do |res|
       res.each do |row|
         logs << row
       end
