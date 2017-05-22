@@ -174,7 +174,7 @@ var parseDataType = function parseDataType(data, type) {
     } else if (type == 4) {
       return (data.readInt32BE(0)<<8) + data.readInt32BE(4)
     }
-  } catch() {
+  } catch(e) {
     return null;
   }
 }
