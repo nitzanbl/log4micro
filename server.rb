@@ -76,6 +76,15 @@ get '/projects/:id' do
     status 400
     JSON.generate({status: 'Invalid project id'})
   else
+    sessions = []
+    getDBConnection.exec_params('select * from sessions where project_id=$1::int;', [project[:id]]) do |res|
+      if res.num_tuples > 0
+        res.num_tuples.times do |i|
+          sessions << res[i]
+        end
+      end
+    end
+    project[:sessions] = sessions
     JSON.generate(project)
   end
 end
@@ -103,12 +112,68 @@ end
 
 delete '/projects/:id' do
   content_type :json
-  res = getDBConnection.exec_params('delete from projects where id=$1::int;', [params['id'].to_i])
+  res = getDBConnection.exec_params('delete from projects where id=$1::int; delete from sessions where project_id=$1::int; delete from logs where project_id=$1::int;', [params['id'].to_i])
   if res.cmd_tuples > 0
     JSON.generate(status: "project was deleted successfully")
   else
     status 400
     JSON.generate(status: "Invalid project id")
+  end
+end
+
+#SESSIONS
+
+post '/projects/:project_id/sessions' do
+  content_type :json
+  data = JSON.parse(request.body.read) rescue nil
+  data = params if data.nil?
+
+  res = getDBConnection.exec_params('insert into sessions (name, project_id, date) values ($1::text, $2::int, $3::timestamp) returning *;', [data['name'].to_s, params['project_id'].to_i, PG::TextEncoder::TimestampWithoutTimeZone.new.encode(DateTime.strptime(data['time'], '%s'))])
+  if res.cmd_tuples > 0
+    JSON.generate(res[0])
+  else
+    status 400
+    JSON.generate(status: "Error creating session, Invalid parameters")
+  end
+end
+
+get '/projects/:project_id/sessions/:id' do
+  content_type :json
+  session = nil
+  getDBConnection.exec_params('select * from sessions where id=$1::int and project_id=$2::int limit 1;',[params['id'].to_i, params['project_id'].to_i]) do |res|
+    if res.num_tuples > 0
+      sessions = res[0]
+    end
+  end
+  if session.nil?
+    status 400
+    JSON.generate({status: 'Invalid params'})
+  else
+    JSON.generate(session)
+  end
+end
+
+
+put '/projects/:project_id/sessions/:id' do
+  content_type :json
+  query = Query.new(:sessions, :update)
+  if params.has_key? "name"
+    query.add_update_param( :name, params['name'] )
+  end
+  query.add_where_param(:id, params["id"].to_i)
+  qstr = query.query_string
+  getDBConnection.exec_params(qstr, query.val)
+  JSON.generate({msg: "your session was updated successfully"})
+end
+
+delete '/projects/:project_id/sessions/:id' do
+  content_type :json
+  res = getDBConnection.exec_params('delete from sessions where project_id=$1::int and id=$2::int; delete from logs where project_id=$1::int and session_id=$2::int;', [params['project_id'].to_i, params['id'].to_i])
+  if res.cmd_tuples > 0
+    JSON.generate(status: "session was deleted successfully")
+  else
+    status 400
+    JSON.generate(status: "Invalid session or project id")
   end
 end
 
@@ -230,6 +295,68 @@ get '/projects/:id/logs' do
     index_parameters = 2
     query = 'select * from logs where project_id=$1::int '
     parameters = [params['id'].to_i]
+    if params.has_key? "log_level"
+      levels = params["log_level"].split("|")
+      levels = PG::TextEncoder::Array.new.encode(levels)
+      query += "and log_level = any($#{index_parameters}::text[]) "
+      parameters << levels
+      index_parameters += 1
+    end
+    if params.has_key? "message"
+      msg = "%" + params["message"] + "%"
+      query += "and log_message ilike $#{index_parameters}::text "
+      parameters << msg
+      index_parameters += 1
+    end
+    if params.has_key? "start_time"
+      start_time = params["start_time"]
+      start_time = PG::TextEncoder::TimestampWithoutTimeZone.new.encode(DateTime.strptime(start_time, '%s'))
+      query += "and time >= $#{index_parameters}::timestamp "
+      parameters << start_time
+      index_parameters += 1
+    end
+    if params.has_key? "end_time"
+      end_time = params["end_time"]
+      end_time = PG::TextEncoder::TimestampWithoutTimeZone.new.encode(DateTime.strptime(end_time, '%s'))
+      query += "and time <= $#{index_parameters}::timestamp "
+      parameters << end_time
+      index_parameters += 1
+    end
+    logs = []
+    limit = if params.has_key? "limit"
+        params["limit"].to_i
+    else
+        100
+    end
+    parameters << limit
+    offset = if params.has_key? "offset"
+        params["offset"]
+    else
+        0
+    end
+    parameters << offset
+    query += "order by time desc, id desc limit $#{index_parameters}::int offset $#{index_parameters+1};"
+    getDBConnection.exec_params(query, parameters) do |res|
+      res.each do |row|
+        logs << row
+      end
+    end
+    JSON.generate(logs)
+  rescue
+    status 400
+    JSON.generate({error:'error retrieving monitoring messages with supplied parameters'})
+  end
+end
+
+get '/projects/:id/sessions/:session_id/logs' do
+  begin
+    halt 400, "invalid project id" if (params['id']=~ /\A\d+\z/).nil?
+    halt 400, "invalid session id" if (params['session_id']=~ /\A\d+\z/).nil?
+
+    content_type :json
+    index_parameters = 3
+    query = 'select * from logs where project_id=$1::int and session_id=$2::int '
+    parameters = [params['id'].to_i, params['session_id'].to_i]
     if params.has_key? "log_level"
       levels = params["log_level"].split("|")
       levels = PG::TextEncoder::Array.new.encode(levels)
