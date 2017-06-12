@@ -1,0 +1,87 @@
+#log-header {
+    margin-bottom: 40px;
+}
+#log-header h2 {
+    font-size: 26px;
+}
+#log-container h2{
+    font-size: 23px;
+}
+#log-header .breadcrumb { 
+  list-style: none; 
+  overflow: hidden; 
+  font: 14px Sans-Serif;
+  margin-top: 12px;
+}
+#log-header .breadcrumb li { 
+  float: left; 
+}
+#log-header .breadcrumb li a {
+  color: white;
+  text-decoration: none; 
+  padding: 5px 0 5px 48px;
+  background: #3D3D3D;
+  position: relative; 
+  display: block;
+  float: left;
+}
+#log-header .breadcrumb li a::after { 
+  content: " "; 
+  display: block; 
+  width: 0; 
+  height: 0;
+  border-top: 50px solid transparent; /* Go big on the size, and let overflow hide */
+  border-bottom: 50px solid transparent;
+  border-left: 30px solid #3D3D3D;
+  position: absolute;
+  top: 50%;
+  margin-top: -50px; 
+  left: 100%;
+  z-index: 2; 
+}
+#log-header .breadcrumb li a::before { 
+  content: " "; 
+  display: block; 
+  width: 0; 
+  height: 0;
+  border-top: 50px solid transparent;       
+  border-bottom: 50px solid transparent;
+  border-left: 30px solid white;
+  position: absolute;
+  top: 50%;
+  margin-top: -50px; 
+  margin-left: 1px;
+  left: 100%;
+  z-index: 1; 
+}
+#log-header .breadcrumb li:first-child a {
+  padding-left: 10px;
+}
+#log-header .breadcrumb li:nth-child(2) a       { background:        #5D5D5D; }
+#log-header .breadcrumb li:nth-child(2) a:after { border-left-color: #5D5D5D; }
+#log-header .breadcrumb li:nth-child(3) a       { background:        #8D8D8D; }
+#log-header .breadcrumb li:nth-child(3) a:after { border-left-color: #8D8D8D; }
+#log-header .breadcrumb li:nth-child(4) a       { background:        #ADADAD; }
+#log-header .breadcrumb li:nth-child(4) a:after { border-left-color: #ADADAD; }
+
+#log-header .breadcrumb li a:hover { 
+  background: #3D3D5C !important; 
+}
+#log-header .breadcrumb li a:hover:after { 
+  border-left-color: #3D3D5C !important; 
+}
+.mm.TRACE {
+  color: #ff80f0;
+}
+.mm.DEBUG {
+  color: #b067fe;
+}
+.mm.WARN {
+  color: #f4fc83;
+}
+.mm.ERROR {
+  color: #ff8080;
+}
+.mm.INFO {
+  color: #80f9ff;
+}

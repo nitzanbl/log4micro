@@ -197,9 +197,15 @@ header img {
   font-size: 16px;
   margin-bottom: 14px
 }
-.newProjectContainer {
-  text-align: center;
-  margin-top: 69px;
+#home-header {
+  margin-bottom: 40px;
+}
+#home-header h2 {
+  padding-left: 20px;
+  font-size: 26px;
+}
+#newProjectContainer {
+  text-align: right;
 }
 #newProject::before {
   content: '\002b';
@@ -210,7 +216,7 @@ header img {
 }
 #newProject {
   text-decoration: none;
-  border: 3px solid #172121;
+  /*border: 3px solid #172121;*/
   padding: 12px 18px;
   font-size: 14px;
   color: #172121;
@@ -235,8 +241,8 @@ header img {
 }
 .project .stats {
    padding: 16px 12px;
-  color: #FFF;
-    background: #172121;
+   color: #FFF;
+   background: #172121;
 }
 
 .project .row.stats .columns {

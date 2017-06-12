@@ -13,6 +13,13 @@ import {StreamService} from '../stream.service'
 export class SettingsComponent implements OnInit {
   levels = ["ALL", "DEBUG", "TRACE", "INFO", "WARN", "ERROR", "OFF"]
   project: Project = null;
+  session = {
+      id:1,
+      name: "a",
+      date: "1999-01-08 04:05:06",
+      messages: 203,
+      error_rate: 0.70
+  }
   val = 0;
   name = "";
   deleteName = "";

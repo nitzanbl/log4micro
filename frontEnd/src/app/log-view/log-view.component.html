@@ -1,21 +1,28 @@
-<div class="container" *ngIf="project!=null">
+<div class="container" id="log-header" *ngIf="(project!=null) && (session!=null)">
   <div class="row">
-    <div class="twelve columns" id="page">
-      <div class="row header">
-        <div class="seven columns">
-          <h1>{{project.name}}</h1>
-          <h3>STATUS: {{project.status}} </h3>
-        </div>
-        <div class="five columns">
+    <div class="seven columns">
+      <h2>Session Log</h2>
+      <ul class="breadcrumb">
+        <li><a [routerLink]="['/']">Projects</a></li>
+        <li><a [routerLink]="['/project',project.id]">{{project.name}}</a></li>
+        <li><a [routerLink]="['/project',project.id]">Sessions</a></li>
+        <li><a [routerLink]="['/project',project.id,'session',session.id]">{{session.name}}</a></li>
+      </ul>
+    </div>
+    <div class="five columns">
           <ul id="log-menu">
-            <li routerLinkActive="active" [routerLinkActiveOptions]="{exact:
-true}" [routerLink]="['/project',project.id]">Logs</li>
+            <li [routerLink]="['/project',project.id]" routerLinkActive="active" 
+            [routerLinkActiveOptions]="{exact:true}">Sessions</li>
             <li>Events</li>
             <li routerLinkActive="active" [routerLinkActiveOptions]="{exact:
 true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
           </ul>
         </div>
-      </div>
+  </div>
+</div>
+<div class="container" *ngIf="project!=null && (session!=null)">
+  <div class="row">
+    <div class="twelve columns" id="page">
       <div class="row project-log">
         <div class="four columns" id="logview-settings">
           <div class="row" id="tabs">
@@ -43,8 +50,8 @@ true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
           </div>
         </div>
         <div class="eight columns">
-          <div id="logs" #logs>
-            <div class="mm" *ngFor="let m of monitoringMessages">
+          <div id="logs" (scroll)="onScroll($event)" #logs>
+            <div class="mm" [ngClass]="[getLogLevel(m)]" *ngFor="let m of getLog(monitoringMessages)">
               <span>{{getTimeStamp(m)}}</span> -
               <span>{{getLogLevel(m)}}</span> -
               [<span>{{getFunctionName(m)}}</span>: line

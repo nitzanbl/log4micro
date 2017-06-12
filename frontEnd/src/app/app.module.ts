@@ -16,6 +16,7 @@ import { SettingsComponent } from './settings/settings.component';
 
 import {SliderModule, CheckboxModule} from 'primeng/primeng';
 import { DatePickerModule } from 'ng2-datepicker';
+import { SessionsComponent } from './sessions/sessions.component';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import { DatePickerModule } from 'ng2-datepicker';
     NewProjectComponent,
     LogViewComponent,
     SettingsComponent,
+    SessionsComponent,
   ],
   imports: [
     BrowserModule,
@@ -49,6 +51,11 @@ import { DatePickerModule } from 'ng2-datepicker';
         },
         {
           path: 'project/:id',
+          component: SessionsComponent,
+          pathMatch: 'full'
+        },
+        {
+          path: 'project/:id/session/:session_id',
           component: LogViewComponent,
           pathMatch: 'full'
         },

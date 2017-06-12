@@ -1,7 +1,28 @@
+<div class="container" id="settings-header" *ngIf="project!=null">
+  <div class="row">
+    <div class="seven columns">
+      <h2>Settings</h2>
+      <ul class="breadcrumb">
+        <li><a [routerLink]="['/']">Projects</a></li>
+        <li><a [routerLink]="['/project',project.id]">{{project.name}}</a></li>
+        <li><a [routerLink]="['/project',project.id,'settings']">Settings</a></li>
+      </ul>
+    </div>
+    <div class="five columns">
+          <ul id="log-menu">
+            <li [routerLink]="['/project',project.id]" routerLinkActive="active" 
+            [routerLinkActiveOptions]="{exact:true}">Sessions</li>
+            <li>Events</li>
+            <li routerLinkActive="active" [routerLinkActiveOptions]="{exact:
+true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
+          </ul>
+        </div>
+  </div>
+</div>
 <div class="container" *ngIf="project!=null">
   <div class="row">
     <div class="twelve columns" id="page">
-      <div class="row header">
+      <!--<div class="row header">
         <div class="seven columns">
           <h1>{{project.name}} >> Settings</h1>
           <h3>STATUS: {{project.status}} </h3>
@@ -9,13 +30,13 @@
         <div class="five columns">
           <ul id="log-menu">
             <li routerLinkActive="active" [routerLinkActiveOptions]="{exact:
-true}" [routerLink]="['/project',project.id]">Logs</li>
+true}" [routerLink]="['/project',project.id]">Sessions</li>
             <li>Events</li>
             <li routerLinkActive="active" [routerLinkActiveOptions]="{exact:
 true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
           </ul>
         </div>
-      </div>
+      </div>-->
       <div class="row settings">
         <div class="ten columns offset-by-one column">
           <h3>Level Control</h3>
