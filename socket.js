@@ -75,11 +75,11 @@ socket.on('connection', function(client){
 var pool = new Pool({host: 'localhost', user: 'postgres', database: 'log4micro', password: 'log4micro', max: 10, min: 4})
 
 var checkPayload = function checkPayload(buff) {
-  //buff has Type Project_id and Log_level_length
-  if (buff.length < 6) {
+  //buff has Type Project_id session_id and Log_level_length
+  if (buff.length < 10) {
     return false;
   }
-  var length = 6 + buff[5] + 1;
+  var length = 10 + buff[5] + 1;
 
   //buff has log_level and log_message_length
   if (buff.length < length) {
@@ -300,6 +300,7 @@ var parseMonitoringMessage = function parseMonitoringMessage(buff) {
   var msg = {};
   msg.command_type = getByte(data);
   msg.project_id = getInt(data);
+  msg.session_id = getInt(data);
   msg.log_level = getString(data);
   msg.log_message = getString(data);
   msg.time = getInt(data);
@@ -380,9 +381,9 @@ var startServer = function startServer(client) {
           }
           'SELECT * FROM triggers where project_id = $1 and trigger_data_name in ($2' + data_numbers + ');';
 
-          client.query('insert into logs (project_id, log_level, log_message, tags, time, function_name, file_name, line, type)\
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9) returning *;',
-          [message.project_id, message.log_level, message.log_message, message.tags, new Date(message.time*1000), message.function_name, message.file_name, message.line, message.command_type], function(err, res) {
+          client.query('insert into logs (project_id, session_id, log_level, log_message, tags, time, function_name, file_name, line, type)\
+          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *;',
+          [message.project_id, message.session_id, message.log_level, message.log_message, message.tags, new Date(message.time*1000), message.function_name, message.file_name, message.line, message.command_type], function(err, res) {
             if(err) {
               console.log(err);
               return;
