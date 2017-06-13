@@ -181,12 +181,14 @@ end
 
 post '/projects/:project_id/triggers' do
   content_type :json
+  data = JSON.parse(request.body.read) rescue nil
+  data = params if data.nil?
   res = getDBConnection.exec_params('insert into triggers (project_id, trigger_data_name, trigger_condition, trigger_value, message) values ($1::int, $2::text, $3::text, $4, $5::text) returning *;',
-    [params['project_id'].to_i,
-    params['trigger_data_name'].to_s,
-    params['trigger_condition'].to_s,
-    {value: [params['trigger_value']].pack('H*'), format: 1},
-    params['message'].to_s
+    [data['project_id'].to_i,
+    data['trigger_data_name'].to_s,
+    data['trigger_condition'].to_s,
+    {value: [data['trigger_value']].pack('H*'), format: 1},
+    data['message'].to_s
     ])
   if res.cmd_tuples > 0
     JSON.generate(res[0])
