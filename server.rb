@@ -199,7 +199,10 @@ end
 get '/projects/:project_id/triggers' do
   content_type :json
   triggers = []
-  getDBConnection.exec('select * from triggers where project_id = $1::int;', [params['project_id'].to_i]) do |res|
+
+  SELECT triggers.*, dataf.type as trigger_data_type, dataf.value as current_value FROM triggers LEFT JOIN (SELECT data.* FROM data INNER JOIN (select name, MAX(id) as id FROM data WHERE project_id=$1::int group by name) AS md ON data.id = md.id) as dataf ON trigger_data_name = name where project_id = $1::int;
+  getDBConnection.exec('  SELECT triggers.*, dataf.type as trigger_data_type, dataf.value as current_value FROM triggers LEFT JOIN (SELECT data.* FROM data INNER JOIN (select name, MAX(id) as id FROM data WHERE project_id=$1::int group by name) AS md ON data.id = md.id) as dataf ON trigger_data_name = name where project_id = $1::int
+;', [params['project_id'].to_i]) do |res|
     res.each do |row|
       triggers << row
     end
