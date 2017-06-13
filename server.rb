@@ -77,7 +77,7 @@ get '/projects/:id' do
     JSON.generate({status: 'Invalid project id'})
   else
     sessions = []
-    getDBConnection.exec_params('select * from sessions where project_id=$1::int;', [project[:id]]) do |res|
+    getDBConnection.exec_params('select * from sessions where project_id=$1::int;', [project['id']]) do |res|
       if res.num_tuples > 0
         res.num_tuples.times do |i|
           sessions << res[i]
@@ -142,7 +142,7 @@ get '/projects/:project_id/sessions/:id' do
   session = nil
   getDBConnection.exec_params('select * from sessions where id=$1::int and project_id=$2::int limit 1;',[params['id'].to_i, params['project_id'].to_i]) do |res|
     if res.num_tuples > 0
-      sessions = res[0]
+      session = res[0]
     end
   end
   if session.nil?
