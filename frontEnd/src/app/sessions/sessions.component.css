@@ -1,0 +1,86 @@
+#sessions-header {
+    margin-bottom: 40px;
+}
+#sessions-header h2 {
+    font-size: 26px;
+}
+#sessions-container h2{
+    font-size: 23px;
+}
+#sessions-header .breadcrumb { 
+  list-style: none; 
+  overflow: hidden; 
+  font: 14px Sans-Serif;
+  margin-top: 12px;
+}
+#sessions-header .breadcrumb li { 
+  float: left; 
+}
+#sessions-header .breadcrumb li a {
+  color: white;
+  text-decoration: none; 
+  padding: 5px 0 5px 48px;
+  background: #3D3D3D;
+  position: relative; 
+  display: block;
+  float: left;
+}
+#sessions-header .breadcrumb li a::after { 
+  content: " "; 
+  display: block; 
+  width: 0; 
+  height: 0;
+  border-top: 50px solid transparent; /* Go big on the size, and let overflow hide */
+  border-bottom: 50px solid transparent;
+  border-left: 30px solid #3D3D3D;
+  position: absolute;
+  top: 50%;
+  margin-top: -50px; 
+  left: 100%;
+  z-index: 2; 
+}
+#sessions-header .breadcrumb li a::before { 
+  content: " "; 
+  display: block; 
+  width: 0; 
+  height: 0;
+  border-top: 50px solid transparent;       
+  border-bottom: 50px solid transparent;
+  border-left: 30px solid white;
+  position: absolute;
+  top: 50%;
+  margin-top: -50px; 
+  margin-left: 1px;
+  left: 100%;
+  z-index: 1; 
+}
+#sessions-header .breadcrumb li:first-child a {
+  padding-left: 10px;
+}
+#sessions-header .breadcrumb li:nth-child(2) a       { background:        #5D5D5D; }
+#sessions-header .breadcrumb li:nth-child(2) a:after { border-left-color: #5D5D5D; }
+#sessions-header .breadcrumb li:nth-child(3) a       { background:        #8D8D8D; }
+#sessions-header .breadcrumb li:nth-child(3) a:after { border-left-color: #8D8D8D; }
+#sessions-header .breadcrumb li:nth-child(4) a       { background:        #ADADAD; }
+#sessions-header .breadcrumb li:nth-child(4) a:after { border-left-color: #ADADAD; }
+
+#sessions-header .breadcrumb li a:hover { 
+  background: #3D3D5C !important; 
+}
+#sessions-header .breadcrumb li a:hover:after { 
+  border-left-color: #3D3D5C !important; 
+}
+.session {
+    border: 1px solid #172121;
+    margin-bottom: 10px;
+    background: white;
+    box-sizing: border-box;
+    padding: 10px;
+}
+.session:hover {
+    box-shadow: 4px 4px 30px 4px rgba(0,0,0,0.2);
+    cursor: pointer;
+}
+.session-details {
+    
+}

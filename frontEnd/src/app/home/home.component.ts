@@ -23,16 +23,12 @@ export class HomeComponent implements OnInit {
   }
 
   numRows(): number {
-    return Math.max(Math.ceil((this.projects.length - 2) / 3), 0) + 1;
+    return Math.max(Math.ceil((this.projects.length) / 3), 0);
   }
 
   getRow(i: number) {
-    if (i === 0) {
-      return this.projects.slice(0, 2);
-    } else {
-      const startIndex = 2 + (i - 1) * 3;
-      return this.projects.slice(startIndex, startIndex + 3);
-    }
+    const startIndex = (i) * 3;
+    return this.projects.slice(startIndex, startIndex + 3);
   }
 
 }
