@@ -75,11 +75,11 @@ socket.on('connection', function(client){
 var pool = new Pool({host: 'localhost', user: 'postgres', database: 'log4micro', password: 'log4micro', max: 10, min: 4})
 
 var checkPayload = function checkPayload(buff) {
-  //buff has Type Project_id session_id and Log_level_length
-  if (buff.length < 10) {
+  //buff has Type Project_id  and Log_level_length
+  if (buff.length < 6) {
     return false;
   }
-  var length = 10 + buff[5] + 1;
+  var length = 6 + buff[5] + 1;
 
   //buff has log_level and log_message_length
   if (buff.length < length) {
@@ -300,7 +300,6 @@ var parseMonitoringMessage = function parseMonitoringMessage(buff) {
   var msg = {};
   msg.command_type = getByte(data);
   msg.project_id = getInt(data);
-  msg.session_id = getInt(data);
   msg.log_level = getString(data);
   msg.log_message = getString(data);
   msg.time = getInt(data);
