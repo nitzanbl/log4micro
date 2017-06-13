@@ -12,19 +12,27 @@ import {ProjectService} from './project.service';
 import { NewProjectComponent } from './new-project/new-project.component';
 import { LogViewComponent } from './log-view/log-view.component';
 import {StreamService} from './stream.service';
+import { SettingsComponent } from './settings/settings.component';
 
-
+import {SliderModule, CheckboxModule} from 'primeng/primeng';
+import { DatePickerModule } from 'ng2-datepicker';
+import { SessionsComponent } from './sessions/sessions.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HomeComponent,
     NewProjectComponent,
-    LogViewComponent
+    LogViewComponent,
+    SettingsComponent,
+    SessionsComponent,
   ],
   imports: [
     BrowserModule,
     FormsModule,
+    SliderModule,
+    DatePickerModule,
+    CheckboxModule,
     HttpModule,
     RouterModule.forRoot(
       [
@@ -43,7 +51,18 @@ import {StreamService} from './stream.service';
         },
         {
           path: 'project/:id',
-          component: LogViewComponent
+          component: SessionsComponent,
+          pathMatch: 'full'
+        },
+        {
+          path: 'project/:id/session/:session_id',
+          component: LogViewComponent,
+          pathMatch: 'full'
+        },
+        {
+          path: 'project/:id/settings',
+          component: SettingsComponent,
+          pathMatch: 'full'
         }
       ]
     )
