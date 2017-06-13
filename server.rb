@@ -248,7 +248,7 @@ end
 
 delete '/projects/:project_id/triggers/:id' do
   content_type :json
-  res = getDBConnection.exec_params('delete from triggers where project_id=$1::int and id=$2::int limit 1;', [params['project_id'].to_i ,params['id'].to_i])
+  res = getDBConnection.exec_params('delete from triggers where project_id=$1::int and id=$2::int;', [params['project_id'].to_i ,params['id'].to_i])
   if res.cmd_tuples > 0
     JSON.generate(status: "trigger was deleted successfully")
   else

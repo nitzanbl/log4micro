@@ -341,6 +341,7 @@ var startServer = function startServer(client) {
   var server = net.createServer(function(socket) {
     console.log('socket connected');
     var socket_project_id = null;
+    var socket_session_id = -1;
     var buffer = new Buffer([]);
     socket.on('close', function(had_error){
       if(socket_project_id != null) {
@@ -357,64 +358,105 @@ var startServer = function startServer(client) {
         var message = buffer.slice(0, length);
         buffer = buffer.slice(length, buffer.length);
         message = parseMonitoringMessage(message);
+
         localHubs[message.project_id] = socket;
         socket_project_id = message.project_id;
-        clients = clients.filter(function(c) {
-          try {
-            c.send(message);
-            return true;
-          } catch(e) {
-            console.log("exception : " + e);
-            return false;
-          }
-        })
-        pool.connect().then(function(client) {
 
-          var data_numbers = '';
-          var trigger_q_values = [4, 'log4micro_log_level']
-          if (message.data.length > 0) {
-            data_numbers = ', ' + message.data.map(function(d,i) {
-              trigger_q_values.push(d.name)
-              return '$'+(i+2);
-            }).join(', ')
-          }
-          'SELECT * FROM triggers where project_id = $1 and trigger_data_name in ($2' + data_numbers + ');';
+        if (message.command_type == 0) {
+          var session_name = message.log_message;
 
-          client.query('insert into logs (project_id, session_id, log_level, log_message, tags, time, function_name, file_name, line, type)\
-          values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *;',
-          [message.project_id, message.session_id, message.log_level, message.log_message, message.tags, new Date(message.time*1000), message.function_name, message.file_name, message.line, message.command_type], function(err, res) {
-            if(err) {
-              console.log(err);
-              return;
-            }else {
-              console.log('log was inserted');
-              if(message.data.length > 0){
-                var log_id = res.rows[0].id;
-                var query = 'insert into data (project_id, log_id, name, value, type) values ';
-                var pre = '';
-                var vals= [message.project_id, log_id];
-                for(var i=0; i<message.data.length; i+=1){
-                  query += pre+ '($1, $2, $'+(vals.length+1)+', $'+(vals.length+2)+', $'+(vals.length+3)+')';
-                  pre = ', ';
-                  vals.push(message.data[i].name);
-                  vals.push(new Buffer(message.data[i].value, 'hex'));
-                  vals.push(message.data[i].type);
-                }
-                query +=  ';';
-                client.query(query, vals, function(err, res){
-                  if(err){
+          pool.connect().then(function(client) {
+
+            client.query('insert into sessions (name, project_id, date) values ($1, $2, $3) returning *;', [session_name, socket_project_id, new Date()], function(err, res){
+              if(err){
+                console.log(err);
+              }else {
+                socket_session_id = res.rows[0].id;
+                message.session_id = socket_session_id;
+                message.time = Math.floor(new Date().getTime() / 1000);
+                message.log_level = 'NOTIF';
+                message.log_message = 'Session ' + session_name + ' Started';
+                clients = clients.filter(function(c) {
+                  try {
+                    c.send(message);
+                    return true;
+                  } catch(e) {
+                    console.log("exception : " + e);
+                    return false;
+                  }
+                })
+                client.query('insert into logs (project_id, session_id, log_level, log_message, tags, time, function_name, file_name, line, type)\
+                values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *;',
+                [message.project_id, message.session_id, message.log_level, message.log_message, message.tags, message.time, message.function_name, message.file_name, message.line, message.command_type], function(err, res) {
+                  if(err) {
                     console.log(err);
+                    return;
                   }else {
-                    console.log('data was inserted');
+                    console.log('notification was inserted');
                   }
                 });
               }
-            }
+            });
           });
-        }).catch(function(err) {
-          console.log("DB ERROR", err);
-        });
+        } else if (message.command_type == 1) {
+          message.time = Math.floor(new Date().getTime() / 1000);
+          message.session_id = socket_session_id;
+          clients = clients.filter(function(c) {
+            try {
+              c.send(message);
+              return true;
+            } catch(e) {
+              console.log("exception : " + e);
+              return false;
+            }
+          })
+          pool.connect().then(function(client) {
 
+            var data_numbers = '';
+            var trigger_q_values = [4, 'log4micro_log_level']
+            if (message.data.length > 0) {
+              data_numbers = ', ' + message.data.map(function(d,i) {
+                trigger_q_values.push(d.name)
+                return '$'+(i+2);
+              }).join(', ')
+            }
+            'SELECT * FROM triggers where project_id = $1 and trigger_data_name in ($2' + data_numbers + ');';
+
+            client.query('insert into logs (project_id, session_id, log_level, log_message, tags, time, function_name, file_name, line, type)\
+            values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *;',
+            [message.project_id, message.session_id, message.log_level, message.log_message, message.tags, message.time, message.function_name, message.file_name, message.line, message.command_type], function(err, res) {
+              if(err) {
+                console.log(err);
+                return;
+              }else {
+                console.log('log was inserted');
+                if(message.data.length > 0){
+                  var log_id = res.rows[0].id;
+                  var query = 'insert into data (project_id, log_id, name, value, type) values ';
+                  var pre = '';
+                  var vals= [message.project_id, log_id];
+                  for(var i=0; i<message.data.length; i+=1){
+                    query += pre+ '($1, $2, $'+(vals.length+1)+', $'+(vals.length+2)+', $'+(vals.length+3)+')';
+                    pre = ', ';
+                    vals.push(message.data[i].name);
+                    vals.push(new Buffer(message.data[i].value, 'hex'));
+                    vals.push(message.data[i].type);
+                  }
+                  query +=  ';';
+                  client.query(query, vals, function(err, res){
+                    if(err){
+                      console.log(err);
+                    }else {
+                      console.log('data was inserted');
+                    }
+                  });
+                }
+              }
+            });
+          }).catch(function(err) {
+            console.log("DB ERROR", err);
+          });
+        }
       }
     });
 
