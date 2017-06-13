@@ -270,7 +270,7 @@ get '/projects/:project_id/data' do
   JSON.generate(data)
 end
 
-get '/projects/:project_id/data/:log_id' do
+get '/projects/:project_id/logs/:log_id/data' do
   content_type :json
   data = []
   getDBConnection.exec('select * from data where project_id=$1::int and log_id=$2::int;',
