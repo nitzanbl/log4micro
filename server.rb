@@ -270,6 +270,18 @@ get '/projects/:project_id/data' do
   JSON.generate(data)
 end
 
+get '/projects/:project_id/data/:log_id' do
+  content_type :json
+  data = []
+  getDBConnection.exec('select * from data where project_id=$1::int and log_id=$2::int;',
+  [params['project_id'].to_i, param['log_id'].to_i]) do |res|
+    res.each do |row|
+      data << row
+    end
+  end
+  JSON.generate(data)
+end
+
 get '/projects/:project_id/data/:id' do
   content_type :json
   data = nil
