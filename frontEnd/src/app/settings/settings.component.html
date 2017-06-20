@@ -10,9 +10,10 @@
     </div>
     <div class="five columns">
           <ul id="log-menu">
-            <li [routerLink]="['/project',project.id]" routerLinkActive="active" 
+            <li [routerLink]="['/project',project.id]" routerLinkActive="active"
             [routerLinkActiveOptions]="{exact:true}">Sessions</li>
-            <li>Events</li>
+            <li [routerLink]="['/project',project.id,'triggers']" routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact:true}">Triggers</li>
             <li routerLinkActive="active" [routerLinkActiveOptions]="{exact:
 true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
           </ul>
@@ -51,7 +52,7 @@ true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
               <td [ngClass]="{selected:val==6}" (click)="changeLevel(6)"><span>OFF</span></td>
             </tr>
           </table>
-          
+
         </div>
             <div class="nine slider columns" id="sliderContainer">
               <p-slider (onChange)="handleChange($event)" [(ngModel)]="val" [step]="1" [min]="0" [max]="6"></p-slider>
@@ -90,7 +91,7 @@ true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
           </p>
 <pre><code><span class="func_type">void</span> <span class="func_name">setup</span>() {{ '{' }}
 
-    <span class="log4micro_func">log4micro_connect</span>(<span class="func_val">{{project.id}}</span>);
+    <span class="log4micro_func">log4micro_connect</span>(<span class="func_p1">"SESSION_NAME"</span>, <span class="func_val">{{project.id}}</span>);
 
     <span class="comment">/** other setup code here **/</span>
 }</code></pre>

@@ -1,0 +1,55 @@
+<div class="container" id="triggers-header" *ngIf="project!=null">
+  <div class="row">
+    <div class="seven columns">
+      <h2>Triggers</h2>
+      <ul class="breadcrumb">
+        <li><a [routerLink]="['/']">Projects</a></li>
+        <li><a [routerLink]="['/project',project.id]">{{project.name}}</a></li>
+        <li><a [routerLink]="['/project',project.id,'triggers']">Triggers</a></li>
+      </ul>
+    </div>
+    <div class="five columns">
+          <ul id="log-menu">
+            <li [routerLink]="['/project',project.id]" routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact:true}">Sessions</li>
+            <li [routerLink]="['/project',project.id,'triggers']" routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact:true}">Triggers</li>
+            <li routerLinkActive="active" [routerLinkActiveOptions]="{exact:
+true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
+          </ul>
+        </div>
+  </div>
+</div>
+<div class="container" *ngIf="project!=null">
+  <div class="row">
+    <div class="twelve columns" id="page">
+      <div class="row settings triggers">
+        <div class="ten columns offset-by-one column">
+          <div class="row">
+            <div class="eight columns"><h3>Triggers</h3></div>
+            <div class="four columns" id="newProjectContainer">
+              <a [routerLink]="['/project',project.id,'new_trigger']" id="newProject">New Trigger</a>
+            </div>
+          </div>
+          <table>
+            <tr>
+              <th>Trigger Data</th>
+              <th>Condition</th>
+              <th>Trigger Value</th>
+              <th>Message</th>
+              <th>&nbsp;</th>
+            </tr>
+            <tr *ngFor="let t of triggers">
+              <td class="td_name">{{t.trigger_data_name}}</td>
+              <td class="td_cond">{{t.trigger_condition}}</td>
+              <td class="td_val">{{t.getTriggerVal()}}</td>
+              <td>{{t.message}}</td>
+              <td><a (click)="removeTriger(t)"><span>x</span> Remove</a></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -5,13 +5,15 @@
       <ul class="breadcrumb">
         <li><a [routerLink]="['/']">Projects</a></li>
         <li><a [routerLink]="['/project',project.id]">{{project.name}}</a></li>
+        <li><a [routerLink]="['/project',project.id]">Sessions</a></li>
       </ul>
     </div>
     <div class="five columns">
           <ul id="log-menu">
-            <li [routerLink]="['/project',project.id]" routerLinkActive="active" 
+            <li [routerLink]="['/project',project.id]" routerLinkActive="active"
             [routerLinkActiveOptions]="{exact:true}">Sessions</li>
-            <li>Events</li>
+            <li [routerLink]="['/project',project.id,'triggers']" routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact:true}">Triggers</li>
             <li routerLinkActive="active" [routerLinkActiveOptions]="{exact:
 true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
           </ul>
@@ -19,18 +21,34 @@ true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
   </div>
 </div>
 <div class="container" id="sessions-container" *ngIf="project!=null">
-  <div class="session" *ngFor="let s of project.sessions" [routerLink]="['/project',project.id,'session',s.id]">
-    <div class="container">
-      <div class="row">
-        <div class="five columns session-name">
-          <h2>{{getName(s)}}</h2>
-        </div>
-        <div class="seven columns session-details">
-          <div class="row"><span class="bold">Date:</span> {{s.date}}</div>
-          <div class="row"><span class="bold">Messages:</span> 3</div>
-          <div class="row"><span class="bold">Error Rate:</span> 0.5</div>
+  <ng-container *ngIf="project.sessions.length>0; else noSessions">
+    <div class="session" *ngFor="let s of project.sessions" [routerLink]="['/project',project.id,'session',s.id]">
+      <div class="container">
+        <div class="row">
+          <div class="five columns session-name">
+            <h2>{{getName(s)}}</h2>
+          </div>
+          <div class="seven columns session-details">
+            <div class="row"><span class="bold">Date:</span> {{s.date}}</div>
+            <!-- <div class="row"><span class="bold">Messages:</span> 3</div>
+            <div class="row"><span class="bold">Error Rate:</span> 0.5</div> -->
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </ng-container>
+    <ng-template #noSessions>
+      <div class="container">
+        <div class="row">
+          <div class="twelve columns">
+            <h2 id="noSessions">No Sessions to display 
+              <span id="noSessionDetails">Go to 
+                <a [routerLink]= "['/project',project.id,'settings']">Settings</a> 
+                for connection info to create a session
+              </span>
+            </h2>
+          </div>
+        </div>
+      </div>
+    </ng-template>
 </div>

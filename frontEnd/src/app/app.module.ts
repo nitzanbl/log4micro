@@ -1,6 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpModule } from '@angular/http';
 
 import { AppComponent } from './app.component';
@@ -17,6 +18,9 @@ import { SettingsComponent } from './settings/settings.component';
 import {SliderModule, CheckboxModule} from 'primeng/primeng';
 import { DatePickerModule } from 'ng2-datepicker';
 import { SessionsComponent } from './sessions/sessions.component';
+import {Daterangepicker} from 'ng2-daterangepicker';
+import { TriggersComponent } from './triggers/triggers.component';
+import { NewTriggerComponent } from './new-trigger/new-trigger.component'
 
 @NgModule({
   declarations: [
@@ -26,12 +30,16 @@ import { SessionsComponent } from './sessions/sessions.component';
     LogViewComponent,
     SettingsComponent,
     SessionsComponent,
+    TriggersComponent,
+    NewTriggerComponent,
   ],
   imports: [
     BrowserModule,
     FormsModule,
     SliderModule,
+    BrowserAnimationsModule,
     DatePickerModule,
+    Daterangepicker,
     CheckboxModule,
     HttpModule,
     RouterModule.forRoot(
@@ -52,6 +60,16 @@ import { SessionsComponent } from './sessions/sessions.component';
         {
           path: 'project/:id',
           component: SessionsComponent,
+          pathMatch: 'full'
+        },
+        {
+          path: 'project/:id/triggers',
+          component: TriggersComponent,
+          pathMatch: 'full'
+        },
+        {
+          path: 'project/:id/new_trigger',
+          component: NewTriggerComponent,
           pathMatch: 'full'
         },
         {
