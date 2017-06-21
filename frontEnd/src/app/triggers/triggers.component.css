@@ -1,0 +1,132 @@
+#triggers-header {
+    margin-bottom: 40px;
+}
+#triggers-header h2 {
+    font-size: 26px;
+}
+#settings-container h2{
+    font-size: 23px;
+}
+#triggers-header .breadcrumb {
+  list-style: none;
+  overflow: hidden;
+  font: 14px Sans-Serif;
+  margin-top: 12px;
+}
+#triggers-header .breadcrumb li {
+  float: left;
+}
+#triggers-header .breadcrumb li a {
+  color: white;
+  text-decoration: none;
+  padding: 5px 0 5px 48px;
+  background: #3D3D3D;
+  position: relative;
+  display: block;
+  float: left;
+}
+#triggers-header .breadcrumb li a::after {
+  content: " ";
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 50px solid transparent; /* Go big on the size, and let overflow hide */
+  border-bottom: 50px solid transparent;
+  border-left: 30px solid #3D3D3D;
+  position: absolute;
+  top: 50%;
+  margin-top: -50px;
+  left: 100%;
+  z-index: 2;
+}
+#triggers-header .breadcrumb li a::before {
+  content: " ";
+  display: block;
+  width: 0;
+  height: 0;
+  border-top: 50px solid transparent;
+  border-bottom: 50px solid transparent;
+  border-left: 30px solid white;
+  position: absolute;
+  top: 50%;
+  margin-top: -50px;
+  margin-left: 1px;
+  left: 100%;
+  z-index: 1;
+}
+#triggers-header .breadcrumb li:first-child a {
+  padding-left: 10px;
+}
+#triggers-header .breadcrumb li:nth-child(2) a       { background:        #5D5D5D; }
+#triggers-header .breadcrumb li:nth-child(2) a:after { border-left-color: #5D5D5D; }
+#triggers-header .breadcrumb li:nth-child(3) a       { background:        #8D8D8D; }
+#triggers-header .breadcrumb li:nth-child(3) a:after { border-left-color: #8D8D8D; }
+#triggers-header .breadcrumb li:nth-child(4) a       { background:        #ADADAD; }
+#triggers-header .breadcrumb li:nth-child(4) a:after { border-left-color: #ADADAD; }
+
+#triggers-header .breadcrumb li a:hover {
+  background: #3D3D5C !important;
+}
+#triggers-header .breadcrumb li a:hover:after {
+  border-left-color: #3D3D5C !important;
+}
+.row.settings {
+ padding-top: 28px;
+}
+
+.triggers table {
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.triggers table th {
+  text-align: left;
+  font-weight: bold;
+  border: 1px solid #aaa;
+  padding: 6px;
+  background: #ddd;
+}
+
+.triggers table td {
+  border: 1px solid #aaa;
+  padding: 6px;
+}
+.triggers table a {
+  background: #d61e1e;
+  padding: 2px 8px 4px 8px;
+  border-radius: 2px;
+  color: #FFF;
+  font-size: 12px;
+  font-weight: bold;
+  line-height: 21px;
+  cursor: pointer;
+}
+
+.triggers table a:hover {
+    background: #755151;
+}
+.triggers table a span {
+  font-size: 16px;
+  line-height: 21px;
+}
+
+/*.triggers table td.td_cond {
+    text-align: center;
+    border-left: 0;
+    border-right: 0;
+    font-size: 20px;
+}
+
+.triggers table td.td_name {
+    border-right: 0px;
+}
+
+.triggers table td.td_val {
+    text-align: left;
+    border-left: 0px;
+}*/
+
+.triggers table a span {
+    font-size: 17px;
+    font-weight: 100;
+}

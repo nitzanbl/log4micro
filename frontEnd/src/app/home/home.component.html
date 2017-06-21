@@ -17,7 +17,7 @@
     <div *ngFor="let p of r" class="four columns">
       <a [routerLink]="['/project',p.id]"><div class="project">
         <div class="contents">
-          <h2>{{p.name}}</h2>
+          <h2>{{p.name}} <span class="project_id">ID: {{p.id}}</span></h2>
           <h3>STATUS: {{p.status}}</h3>
           <p>{{p.description}}</p>
         </div>

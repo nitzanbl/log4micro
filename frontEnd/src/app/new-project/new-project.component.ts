@@ -22,7 +22,7 @@ export class NewProjectComponent implements OnInit {
     console.log(`name: ${this.name}, desc: ${this.desc}, level-control: ${this.level_control}`);
     this.loading = true;
     this.projectService.createProject(this.name, this.desc, this.level_control).then((p) => {
-      this.router.navigate(['project', p.id]);
+      this.router.navigate(['project', p.id,'settings']);
       this.loading = false;
     });
   }
