@@ -11,9 +11,10 @@
     </div>
     <div class="five columns">
           <ul id="log-menu">
-            <li [routerLink]="['/project',project.id]" routerLinkActive="active" 
+            <li [routerLink]="['/project',project.id]" routerLinkActive="active"
             [routerLinkActiveOptions]="{exact:true}">Sessions</li>
-            <li>Events</li>
+            <li [routerLink]="['/project',project.id,'triggers']" routerLinkActive="active"
+            [routerLinkActiveOptions]="{exact:true}">Triggers</li>
             <li routerLinkActive="active" [routerLinkActiveOptions]="{exact:
 true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
           </ul>
@@ -26,14 +27,14 @@ true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
       <div class="row project-log">
         <div class="four columns" id="logview-settings">
           <div class="row" id="tabs">
-            <div class="six columns tab" [ngClass]="{active: currentTab==0}"
+            <div class="columns tab twelve active" 
             (click)="currentTab=0">Filter</div>
-            <div class="six columns tab" [ngClass]="{active: currentTab==1}"
-            (click)="currentTab=1">Info</div>
+            <!--<div class="columns tab" [ngClass]="{six: selectedMM != null, hidden_tab: selectedMM == null, active: currentTab==1}"
+            (click)="currentTab=1">Info</div>-->
           </div>
           <div class="row tabsContent">
-            <div class="twelve columns">
-              <h3>Log Levels</h3>
+            <div class="twelve columns" [ngClass]="{hidden_content: currentTab != 0}">
+              <h3>Logging Levels</h3>
               <p-checkbox name="filterLevel" value="TRACE" label="TRACE"
               [(ngModel)]="filteredLevels"></p-checkbox>
               <p-checkbox name="filterLevel" value="DEBUG" label="DEBUG"
@@ -45,24 +46,79 @@ true}" [routerLink]="['/project',project.id,'settings']">Settings</li>
               <p-checkbox name="filterLevel" value="ERROR" label="ERROR"
               [(ngModel)]="filteredLevels"></p-checkbox>
               <h3>Date</h3>
-              <ng2-datepicker [options]="options" [(ngModel)]="filterTime" #cal></ng2-datepicker>
+              <div id="calendar_info">
+                <input type="text" name="daterangeInput" daterangepicker [options]="options" (applyDaterangepicker)="selectedDate($event)" />
+              </div>
+              <!-- <ng2-datepicker [options]="options" [(ngModel)]="filterTime" #cal></ng2-datepicker> -->
             </div>
+            <!--<div class="twelve columns" [ngClass]="{hidden_content: currentTab != 1}">
+              <ng-container *ngIf="selectedMM != null">
+              <h3>Location:</h3>
+              <p><b>Line:</b>{{selectedMM.line}}</p>
+              <p><b>Function:</b>{{selectedMM.function_name}}</p>
+              <p><b>File:</b>{{selectedMM.file_name}}</p>
+              <h3>Data</h3>
+              <p *ngIf="logData.length == 0">No Data for this Log</p>
+              <div *ngIf="logData.length > 0">
+                <table>
+                  <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Value</th>
+                  </tr>
+                  <tr *ngFor="let dt of logData">
+                    <td>{{dt.name}}</td>
+                    <td>{{dt.getType()}}</td>
+                    <td>{{dt.getVal()}}</td>
+                  </tr>
+                </table>
+              </div>
+             </ng-container>
+            </div>-->
           </div>
         </div>
         <div class="eight columns">
           <div id="logs" (scroll)="onScroll($event)" #logs>
-            <div class="mm" [ngClass]="[getLogLevel(m)]" *ngFor="let m of getLog(monitoringMessages)">
+            <div *ngFor="let m of getLog(monitoringMessages)" (click)="clickedMM(m)">
+              <div class="mm" [ngClass]="[getLogLevel(m), selectedMM == m ? 'selected' : 'not_selected']">
               <span>{{getTimeStamp(m)}}</span> -
               <span>{{getLogLevel(m)}}</span> -
-              [<span>{{getFunctionName(m)}}</span>: line
-              <span>{{getLineNumber(m)}}</span>] -
+              <ng-container *ngIf="getLogLevel(m)!='NOTIF'">[<span>{{getFunctionName(m)}}</span>: line
+              <span>{{getLineNumber(m)}}</span>] -</ng-container>
               <span>{{getMessage(m)}}</span>
+              </div>
+              <div class="mm_info" *ngIf="selectedMM == m" [@slideIn]>
+              <h2>Monitoring Message Info</h2>
+              <div class="log_position_info">
+                <h3>Location:</h3>
+                <p><b>Line:</b>{{selectedMM.line}}</p>
+                <p><b>Function:</b>{{selectedMM.function_name}}</p>
+                <p><b>File:</b>{{selectedMM.file_name}}</p>
+              </div>
+              <h3>Data</h3>
+              <p *ngIf="logData.length == 0">No Data for this Log</p>
+              <div *ngIf="logData.length > 0">
+                <table>
+                  <tr>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Value</th>
+                  </tr>
+                  <tr *ngFor="let dt of logData">
+                    <td>{{dt.name}}</td>
+                    <td>{{dt.getType()}}</td>
+                    <td>{{dt.getVal()}}</td>
+                  </tr>
+                </table>
+              </div>
+             </div>
             </div>
           </div>
+
           <div id="search">
             <div class="row">
-              <div class="nine columns"><input type="text" placeholder="Enter your search query ..."></div>
-              <div class="three columns"><button>Search</button></div>
+              <div class="nine columns"><input type="text" [(ngModel)]="query" placeholder="Enter your search query ..."></div>
+              <div class="three columns"><button (click)="querySearch()">Search</button></div>
             </div>
           </div>
         </div>

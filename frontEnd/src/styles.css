@@ -488,15 +488,41 @@ border-bottom: 3px solid #172121;
   vertical-align: middle;
   padding: 0px 10px;
 }
+.daterangepicker{
+	display: none;
+}
+.daterangepicker .input-mini {
+    box-sizing: border-box;
+}
+.daterangepicker .range_inputs button {
+	border: 1px solid #EFEFEF;
+  border-radius: 2px;
+  padding: 4px 7px;
+}
+
+.daterangepicker .range_inputs button.applyBtn {
+	background: #5CB85C;
+	color: #FFF;
+}
+.daterangepicker .range_inputs button.cancelBtn {
+	background: #343434;
+	color: #FFF;
+}
+
 #page #tabs > .columns {
+	-webkit-transition: width 0.6s; /* Safari */
+    transition: width 0.6s;
   text-align: center;
-  width: 50%;
+  /*width: 50%;*/
   margin: 0px;
   padding: 10px 10px;
   border-bottom: 1px solid white;
   color: white;
   font-size: 14px;
   cursor: pointer;
+}
+#page #tabs > .columns.six {
+  width: 50%;
 }
 #page #tabs > .columns:hover {
   font-weight: bold;
@@ -568,14 +594,14 @@ table#level_control td:hover span,table#level_control td.selected span{
 }
 .ui-slider  .ui-slider-handle {
     background: white;
-    border: 2px solid #172121; 
+    border: 2px solid #172121;
     border-radius: 40px;
     padding: 0px 20px;
     vertical-align: bottom;
     margin-top: -4px;
 }
 .settings hr {
-  margin-bottom: 40px; 
+  margin-bottom: 40px;
   margin-top: 40px;
 }
 #changeProjectDetails {
@@ -605,7 +631,7 @@ table#level_control td:hover span,table#level_control td.selected span{
   border: 2px solid #172121;
   background-color: #172121;
   color: white;
-  cursor: pointer; 
+  cursor: pointer;
   font-size: 16px;
   font-weight: bolder;
 }
@@ -672,8 +698,11 @@ pre code span.func_val {
 pre code span.log4micro_func {
   color: #2696E0;
 }
-pre code span.comment {
+pre code span.func_p1 {
   color: #4FBD60;
+}
+pre code span.comment {
+  color: #606060;
 }
 
 #popupWrapper {

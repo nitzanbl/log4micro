@@ -1,0 +1,52 @@
+<div class="container">
+  <div class="row">
+    <div class="six columns offset-by-three" id="newForm">
+      <div *ngIf = "loading" class="loader-container">
+        <div class="loader">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+      <h1>New Trigger</h1>
+      <hr>
+      <div class="row">
+        <div class="four columns">
+          <label for="name">Data</label>
+          <select [(ngModel)]=name id="name">
+            <option *ngFor="let d of projectData" [value]="d.name">{{d.name}}</option>
+          </select>
+        </div>
+        <div class="four columns">
+          <fieldset>
+            <label for="condition">Condition</label>
+            <select [(ngModel)]=condition id="condition">
+              <option value="eq">=</option>
+              <option value="lt">&lt;</option>
+              <option value="bt">&gt;</option>
+              <option value="lte">&lt;=</option>
+              <option value="bte">&gt;=</option>
+            </select>
+          </fieldset>
+        </div>
+        <div class="four columns">
+          <label for="value">Value</label>
+          <div [ngSwitch]="getType(name)">
+            <input *ngSwitchCase="0" type="number" name="value" placeholder="Val" [(ngModel)]=value id="value">
+            <input *ngSwitchCase="2" type="checkbox" name="value" placeholder="Val" [(ngModel)]=value id="value">
+            <input *ngSwitchDefault type="text" name="value" placeholder="Val" [(ngModel)]=value id="value">
+          </div>
+        </div>
+      </div>
+      <fieldset>
+        <label for="message">Message</label>
+        <input type="text" name="message" placeholder="Trigger Message" [(ngModel)]=message id="message">
+      </fieldset>
+
+      <div class="row align-right">
+        <button (click)="createTrigger()">Create Trigger!</button>
+      </div>
+    </div>
+  </div>
+</div>
