@@ -5,7 +5,7 @@ import * as io from 'socket.io-client';
 
 @Injectable()
 export class StreamService {
-  private url = 'http://log4micro.codestaq.com:8080';
+  private url = 'http://api.log4micro.com:8080';
   private socket = null;
 
   constructor() { this.socket = io(this.url);}
@@ -14,6 +14,7 @@ export class StreamService {
     let observable = new Observable(observer => {
 
       this.socket.on('message', (data) => {
+        console.log(data);
         observer.next(data);
       });
       return () => {

@@ -112,6 +112,10 @@ table {
       margin-left: 15%;
     width: 71%;
 }
+#sliderContainer.log_settings {
+	margin-left: 9%;
+width: 74%;
+}
   .offset-by-two.column,
   .offset-by-two.columns          { margin-left: 17.3333333333%; }
   .offset-by-three.column,
@@ -569,6 +573,10 @@ table#level_control {
 	margin-bottom: 10px;
 	margin-top: 40px;
 }
+table#level_control.log_settings {
+	margin-bottom: 10px;
+	margin-top: 0px;
+}
 table#level_control td {
 	width: 15%;
 	text-align: center;
@@ -589,6 +597,11 @@ table#level_control td:hover span,table#level_control td.selected span{
 	font-weight: bold;
 	margin-bottom: 20px;
 }
+.row.settings.logs_settings h3 {
+	margin-bottom: 0px;
+		font-size: 20px;
+}
+
 .offset-by-one.columns.slider {
 	cursor: pointer;
 }
@@ -607,6 +620,7 @@ table#level_control td:hover span,table#level_control td.selected span{
 #changeProjectDetails {
   padding-bottom: 30px;
   overflow: hidden;
+	padding-top: 20px;
 }
 #changeProjectDetails .row {
   margin-bottom: 10px;

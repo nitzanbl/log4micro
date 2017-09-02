@@ -1,5 +1,5 @@
 import { Component, OnInit, AfterViewChecked, ViewChild } from '@angular/core';
-import { trigger, transition, style, animate, state } from '@angular/core'; 
+import { trigger, transition, style, animate, state } from '@angular/core';
 import {ProjectService} from '../project.service';
 import {Project} from '../project';
 import {Session} from '../session';
@@ -49,8 +49,13 @@ export class LogViewComponent implements OnInit, AfterViewChecked  {
   currentTab = 0;
   filterTime: DateModel;
   option: DatePickerOptions;
+  levels = ["ALL", "DEBUG", "TRACE", "INFO", "WARN", "ERROR", "OFF"]
 
-  filteredLevels= ['INFO','ERROR','DEBUG',"TRACE"];
+  val = 0;
+
+
+
+  filteredLevels= ['INFO','ERROR','WARN','DEBUG',"TRACE"];
 
   constructor(private rout: ActivatedRoute, private projectService: ProjectService, private streamService: StreamService) { }
 
@@ -65,6 +70,8 @@ export class LogViewComponent implements OnInit, AfterViewChecked  {
     this.rout.params.subscribe((params)=>{
       this.projectService.getProjectById(+params['id']).then((proj)=>{
         this.project = proj;
+        if(this.levels.indexOf(this.project.level_control)>=0)
+          this.val = this.levels.indexOf(this.project.level_control)
       })
       this.projectService.getSessionById(+params['id'],+params['session_id']).then((sess)=>{
         this.session = sess;
@@ -77,12 +84,13 @@ export class LogViewComponent implements OnInit, AfterViewChecked  {
           mMessage.log_level = message.log_level;
           mMessage.log_message = message.log_message;
           tempDate = new Date(message.time * 1000);
-          var month = ('0' + tempDate.getMonth().toString()).substr(-2);
-          var day = ('0' + tempDate.getDay().toString()).substr(-2);
-          var hours = ('0' + tempDate.getHours().toString()).substr(-2);
-          var minutes = ('0' + tempDate.getMinutes().toString()).substr(-2);
-          var seconds = ('0' + tempDate.getSeconds().toString()).substr(-2);
-          mMessage.time = tempDate.getFullYear().toString() + '-' + month + '-' +
+          var month = ('0' + (tempDate.getUTCMonth() + 1).toString()).substr(-2);
+          var day = ('0' + tempDate.getUTCDate().toString()).substr(-2);
+          var hours = ('0' + tempDate.getUTCHours().toString()).substr(-2);
+          var minutes = ('0' + tempDate.getUTCMinutes().toString()).substr(-2);
+          var seconds = ('0' + tempDate.getUTCSeconds().toString()).substr(-2);
+
+          mMessage.time = tempDate.getUTCFullYear().toString() + '-' + month + '-' +
           day + ' ' + hours + ':' + minutes + ':' + seconds;
           mMessage.function_name = message.function_name;
           mMessage.file_name = message.file_name;
@@ -96,6 +104,11 @@ export class LogViewComponent implements OnInit, AfterViewChecked  {
         // this.logs.nativeElement.scrollTop = this.logs.nativeElement.scrollHeight
       })
     })
+  }
+
+  changeLevel(level) {
+    this.val = level;
+    this.streamService.setLevelControl(this.project.id,this.levels[level] )
   }
 
   ngAfterViewChecked() {
@@ -176,12 +189,11 @@ export class LogViewComponent implements OnInit, AfterViewChecked  {
         this.monitoringMessages = logs;
       })
     }
-    console.log(this.query);
   }
   getLog(monitoringMessages) {
     return monitoringMessages.filter((mm) => {
       return mm.log_level == 'NOTIF' || this.filteredLevels.indexOf(mm.log_level)>=0;
-    }).sort(function(a, b){return (a.id == b.id) ? 0 : (a.id > b.id) ? 1 : -1;});
+    }).sort(function(a, b){  return (a.time == b.time) ? 0 : (a.time > b.time) ? 1 : -1;});
   }
 
 }

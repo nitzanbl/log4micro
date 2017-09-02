@@ -13,7 +13,7 @@ set :port, 80
 set :allow_methods, [:get, :post, :options, :put, :delete]
 
 def getDBConnection
-  PG.connect(host: 'localhost', user: 'postgres', dbname: 'log4micro', password: 'log4micro')
+  PG.connect(host: 'db.log4micro.com', user: 'postgres', dbname: 'log4micro', password: 'log4micro')
 end
 
 configure do
@@ -28,15 +28,16 @@ options "*" do
   200
 end
 
-get '/home' do
-  'hello'
-end
-
-get '/log_view' do
-  File.read("./html/index.html")
-end
+#
+# get '/log_view' do
+#   File.read("./html/index.html")
+# end
 
 #PROJECTS
+
+get '/ping' do
+  'ok'
+end
 
 post '/projects' do
   content_type :json

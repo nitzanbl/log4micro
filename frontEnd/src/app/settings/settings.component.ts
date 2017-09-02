@@ -13,14 +13,7 @@ import {StreamService} from '../stream.service'
 export class SettingsComponent implements OnInit {
   levels = ["ALL", "DEBUG", "TRACE", "INFO", "WARN", "ERROR", "OFF"]
   project: Project = null;
-  session = {
-      id:1,
-      name: "a",
-      date: "1999-01-08 04:05:06",
-      messages: 203,
-      error_rate: 0.70
-  }
-  val = 0;
+  // val = 0;
   name = "";
   deleteName = "";
   description = "";
@@ -33,8 +26,7 @@ export class SettingsComponent implements OnInit {
         this.name = proj.name;
         this.description = proj.description;
         this.project = proj;
-        if(this.levels.indexOf(this.project.level_control)>=0)
-          this.val = this.levels.indexOf(this.project.level_control)
+      
       })
     })
   }
@@ -56,10 +48,10 @@ export class SettingsComponent implements OnInit {
     console.log(this.levels[event.value]);
     this.streamService.setLevelControl(this.project.id,this.levels[event.value] )
   }
-  changeLevel(level) {
-    this.val = level;
-    this.streamService.setLevelControl(this.project.id,this.levels[level] )
-  }
+  // changeLevel(level) {
+  //   this.val = level;
+  //   this.streamService.setLevelControl(this.project.id,this.levels[level] )
+  // }
   saveChanges() {
     this.projectService.updateProject(this.project.id, this.name, this.description).then((a)=>{
       this.project.name = this.name;

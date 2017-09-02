@@ -27,6 +27,7 @@ socket.on('connection', function(client){
       pool.connect().then(function(client) {
         client.query('update projects set level_control = $1 where id = $2;',
         [event.log_level, event.project_id], function(err, res) {
+          client.release();
           if(err) {
             console.log(err);
             return;
@@ -72,7 +73,7 @@ socket.on('connection', function(client){
 ////////////////////// Monitoring Message Socket////////////////////
 
 //var client = new pg.Client({host: 'localhost', user: 'postgres', database: 'log4micro', password: 'log4micro'});
-var pool = new Pool({host: 'localhost', user: 'postgres', database: 'log4micro', password: 'log4micro', max: 10, min: 4})
+var pool = new Pool({host: 'db.log4micro.com', user: 'postgres', database: 'log4micro', password: 'log4micro', max: 10, min: 4})
 
 var checkPayload = function checkPayload(buff) {
   //buff has Type Project_id  and Log_level_length
@@ -237,30 +238,36 @@ var testCompareData = function testCompareData(trigger, data) {
 return false;
 }
 
-var checkForTriggers = function checkForTriggers(psql, message) {
+var checkForTriggers = function checkForTriggers(message) {
   var dataMap = {log4micro_log_level: {type: -1, name: 'log4micro_log_level', value: logLevels.indexOf(message.log_level)}};
   var data_numbers = '';
   var trigger_q_values = [message.project_id, 'log4micro_log_level']
   if (message.data.length > 0) {
     data_numbers = ', ' + message.data.map(function(d,i) {
+      d.value = new Buffer(d.value.match(/.{2}/g).map(function(e){return parseInt(e,16);}))
       dataMap[d.name] = d;
       trigger_q_values.push(d.name)
-      return '$'+(i+2);
+      return '$'+(i+3);
     }).join(', ')
   }
+    pool.connect().then(function(psql) {
   psql.query('SELECT * FROM triggers where project_id = $1 and trigger_data_name in ($2' + data_numbers + ');', trigger_q_values, function(err, res) {
+psql.release();
     if(err) {
       console.log(err);
     } else {
+
       for(var i=0; i<res.rows.length; i+=1) {
         if(dataMap.hasOwnProperty(res.rows[i].trigger_data_name)) {
           if(testCompareData(res.rows[i], dataMap[res.rows[i].trigger_data_name])) {
+            console.log("Trigger occured " + res.rows[i].message);
             sendTriggerNotification(res.rows[i], dataMap[res.rows[i].trigger_data_name]);
           }
         }
       }
     }
   });
+})
 
 }
 
@@ -361,6 +368,7 @@ var startServer = function startServer(client) {
 
         localHubs[message.project_id] = socket;
         socket_project_id = message.project_id;
+        console.log("Message received for P: " + socket_project_id + " S: " + socket_session_id)
 
         if (message.command_type == 0) {
           var session_name = message.log_message;
@@ -370,28 +378,36 @@ var startServer = function startServer(client) {
             client.query('insert into sessions (name, project_id, date) values ($1, $2, $3) returning *;', [session_name, socket_project_id, new Date()], function(err, res){
               if(err){
                 console.log(err);
+
+                client.release();
+                return;
               }else {
                 socket_session_id = res.rows[0].id;
                 message.session_id = socket_session_id;
                 message.time = Math.floor(new Date().getTime() / 1000);
                 message.log_level = 'NOTIF';
                 message.log_message = 'Session ' + session_name + ' Started';
-                clients = clients.filter(function(c) {
-                  try {
-                    c.send(message);
-                    return true;
-                  } catch(e) {
-                    console.log("exception : " + e);
-                    return false;
-                  }
-                })
+
                 client.query('insert into logs (project_id, session_id, log_level, log_message, tags, time, function_name, file_name, line, type)\
                 values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *;',
-                [message.project_id, message.session_id, message.log_level, message.log_message, message.tags, message.time, message.function_name, message.file_name, message.line, message.command_type], function(err, res) {
+                [message.project_id, message.session_id, message.log_level, message.log_message, message.tags, new Date(message.time*1000), message.function_name, message.file_name, message.line, message.command_type], function(err, res) {
+
+                  client.release();
+
                   if(err) {
                     console.log(err);
                     return;
                   }else {
+                    message.id = res.rows[0].id
+                    clients = clients.filter(function(c) {
+                      try {
+                        c.send(message);
+                        return true;
+                      } catch(e) {
+                        console.log("exception : " + e);
+                        return false;
+                      }
+                    })
                     console.log('notification was inserted');
                   }
                 });
@@ -401,17 +417,8 @@ var startServer = function startServer(client) {
         } else if (message.command_type == 1) {
           message.time = Math.floor(new Date().getTime() / 1000);
           message.session_id = socket_session_id;
-          clients = clients.filter(function(c) {
-            try {
-              c.send(message);
-              return true;
-            } catch(e) {
-              console.log("exception : " + e);
-              return false;
-            }
-          })
-          pool.connect().then(function(client) {
 
+          pool.connect().then(function(client) {
             var data_numbers = '';
             var trigger_q_values = [4, 'log4micro_log_level']
             if (message.data.length > 0) {
@@ -424,14 +431,27 @@ var startServer = function startServer(client) {
 
             client.query('insert into logs (project_id, session_id, log_level, log_message, tags, time, function_name, file_name, line, type)\
             values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) returning *;',
-            [message.project_id, message.session_id, message.log_level, message.log_message, message.tags, message.time, message.function_name, message.file_name, message.line, message.command_type], function(err, res) {
+            [message.project_id, message.session_id, message.log_level, message.log_message, message.tags, new Date(message.time*1000), message.function_name, message.file_name, message.line, message.command_type], function(err, res) {
               if(err) {
                 console.log(err);
+
+                client.release();
                 return;
               }else {
+                message.id = res.rows[0].id
+                clients = clients.filter(function(c) {
+                  try {
+                    c.send(message);
+                    return true;
+                  } catch(e) {
+                    console.log("exception : " + e);
+                    return false;
+                  }
+                })
                 console.log('log was inserted');
                 if(message.data.length > 0){
-                  var log_id = res.rows[0].id;
+                  checkForTriggers(message);
+                  var log_id = message.id;
                   var query = 'insert into data (project_id, log_id, name, value, type) values ';
                   var pre = '';
                   var vals= [message.project_id, log_id];
@@ -444,12 +464,16 @@ var startServer = function startServer(client) {
                   }
                   query +=  ';';
                   client.query(query, vals, function(err, res){
+
+                    client.release();
                     if(err){
                       console.log(err);
                     }else {
                       console.log('data was inserted');
                     }
                   });
+                } else {
+                    client.release();
                 }
               }
             });

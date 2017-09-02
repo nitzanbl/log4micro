@@ -10,7 +10,7 @@ import { MonitoringMessage } from './monitoring-message';
 
 @Injectable()
 export class ProjectService {
-  private base_url: String = 'http://log4micro.codestaq.com/';
+  private base_url: String = 'http://api.log4micro.com';
 
   constructor(private http: Http) { }
 
